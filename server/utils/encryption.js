@@ -1,38 +1,47 @@
 import crypto from 'crypto'
-import config from './config.js'
+import config from '../config.js'
 
-const { secret_key, secret_iv, ecnryption_method } = config
+const { secretKey, encryptionMethod } = config
 
-if (!secret_key || !secret_iv || !ecnryption_method) {
-    throw new Error('secretKey, secretIV, and ecnryptionMethod are required')
+if (!secretKey || !encryptionMethod) {
+    throw new Error('secretKey, and encryptionMethod are required')
 }
 
-// Generate secret hash with crypto to use for encryption
-const key = crypto
-    .createHash('sha512')
-    .update(secret_key)
-    .digest('hex')
-    .substring(0, 32)
-const encryptionIV = crypto
-    .createHash('sha512')
-    .update(secret_iv)
-    .digest('hex')
-    .substring(0, 16)
-
 // Encrypt data
-export function encryptData(data) {
-    const cipher = crypto.createCipheriv(ecnryption_method, key, encryptionIV)
-    return Buffer.from(
-        cipher.update(data, 'utf8', 'hex') + cipher.final('hex')
-    ).toString('base64') // Encrypts data and converts to hex and base64
+export function encryptData(text) {
+    let iv = crypto.randomBytes(16);
+    let cipher = crypto.createCipheriv(
+        "aes-256-cbc",
+        Buffer.from(secretKey),
+        iv
+    );
+
+    let encrypted = cipher.update(text);
+
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString("hex") + ":" + encrypted.toString("hex");
 }
 
 // Decrypt data
-export function decryptData(encryptedData) {
-    const buff = Buffer.from(encryptedData, 'base64')
-    const decipher = crypto.createDecipheriv(ecnryption_method, key, encryptionIV)
-    return (
-        decipher.update(buff.toString('utf8'), 'hex', 'utf8') +
-        decipher.final('utf8')
-    ) // Decrypts data and converts to utf8
+export function decryptData(text) {
+    let textParts = text.split(":");
+    let iv = Buffer.from(textParts.shift(), "hex");
+    let encryptedText = Buffer.from(textParts.join(":"), "hex");
+    let decipher = crypto.createDecipheriv(
+        "aes-256-cbc",
+        Buffer.from(secretKey),
+        iv
+    );
+
+    // By default node uses PKCS padding, but Python uses null-byte
+    // padding instead. So calling cipher.setAutoPadding(false); after
+    // you create the decipher instance will make it work as expected:
+    //decipher.setAutoPadding(false);
+
+    let decrypted = decipher.update(encryptedText);
+
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+    return decrypted.toString();
 }
