@@ -8,7 +8,7 @@ router.route('/upload')
     .post(
         protect,
         fileController.uploadFile,
-        // fileController.encryptFile,
+        fileController.createFile
     );
 
 export default router;

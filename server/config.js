@@ -2,11 +2,16 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const { NODE_ENV, PORT, SECRET_KEY, ENCRYPTION_METHOD } = process.env
-
 export default {
-    env: NODE_ENV,
-    port: PORT,
-    secretKey: SECRET_KEY,
-    encryptionMethod: ENCRYPTION_METHOD,
+    env: process.env.NODE_ENV,
+    port: process.env.PORT,
+    secretKey: process.env.SECRET_KEY,
+    encryptionMethod: process.env.ENCRYPTION_METHOD,
+    database: {
+        name: process.env.DB_NAME,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        host: process.env.DB_HOST,
+        dialect: process.env.DB_DIALECT
+    }
 }

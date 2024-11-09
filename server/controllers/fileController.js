@@ -25,6 +25,19 @@ const upload = multer({
     // fileFilter: multerFilter,
 })
 
+export const uploadFile = upload.single('file');
+
+export const createFile = (req, res, next) => {
+    res.status(200).json({
+        status: 'success',
+        message: 'File uploaded successfully',
+        data: req.file,
+    });
+}
+
+
+
+
 // export const encryptFile = (req, res, next) => {
 //     try {
 //         console.log(req.file);
@@ -73,5 +86,3 @@ const upload = multer({
 
 // export const decryptFile = (req, res, next) => {
 // }
-
-export const uploadFile = upload.single('file');
