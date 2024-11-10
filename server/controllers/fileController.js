@@ -1,7 +1,7 @@
 import multer from 'multer';
 import fs from 'fs';
 import crypto from 'crypto';
-import config from '../config.js';
+import config from '../config/config.js';
 
 const { secretKey, encryptionMethod } = config
 
