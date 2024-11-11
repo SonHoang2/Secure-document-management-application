@@ -2,8 +2,7 @@ import multer from 'multer';
 import fs from 'fs';
 import crypto from 'crypto';
 import config from '../config/config.js';
-
-const { secretKey, encryptionMethod } = config
+import { __dirname } from '../app.js';
 
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -25,9 +24,9 @@ const upload = multer({
     // fileFilter: multerFilter,
 })
 
-export const uploadFile = upload.single('file');
+export const uploadDoc = upload.single('file');
 
-export const createFile = (req, res, next) => {
+export const createDoc = (req, res, next) => {
     res.status(200).json({
         status: 'success',
         message: 'File uploaded successfully',
@@ -35,7 +34,16 @@ export const createFile = (req, res, next) => {
     });
 }
 
+export const downloadDoc = (req, res, next) => {
 
+    console.log(__dirname);
+    
+    
+    const file = `${__dirname}/upload/files/user-1-1731291565272.plain`;
+    console.log(file);
+
+    res.sendFile(file);
+}
 
 
 // export const encryptFile = (req, res, next) => {
