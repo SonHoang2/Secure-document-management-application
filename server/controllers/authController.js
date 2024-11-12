@@ -1,4 +1,4 @@
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
     req.user = {
         id: 1
     };
@@ -6,4 +6,24 @@ const protect = async (req, res, next) => {
     next();
 }
 
-export default protect;
+export const signup = async (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: {
+                id: 1
+            }
+        }
+    });
+}
+
+export const login = async (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: {
+                id: 1
+            }
+        }
+    });
+}
