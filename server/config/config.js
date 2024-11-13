@@ -13,5 +13,10 @@ export default {
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST,
         dialect: process.env.DB_DIALECT
-    }
+    },
+    jwt: {
+        secret: process.env.JWT_SECRET,
+        expiresIn: process.env.JWT_EXPIRES_IN,
+        cookieExpiresIn: process.env.JWT_COOKIE_EXPIRES_IN
+    },
 }

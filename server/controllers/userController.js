@@ -62,12 +62,16 @@ export const updateUser = catchAsync(async (req, res) => {
     });
 });
 
-export const deleteUser = catchAsync(async (req, res) => {
-    await User.destroy({
+export const deleteUser = catchAsync(async (req, res, next) => {
+    const user = await User.destroy({
         where: {
             id: req.params.id
         }
     });
+
+    if (!user) {
+        return next(new AppError('No user found with that ID', 404));
+    }
 
     res.status(204).json({
         status: 'success',

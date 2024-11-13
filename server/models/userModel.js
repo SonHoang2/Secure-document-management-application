@@ -1,5 +1,6 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
+import bcrypt from 'bcryptjs';
 
 const User = sequelize.define('user', {
     id: {
@@ -46,8 +47,28 @@ const User = sequelize.define('user', {
     },
 },
     {
-        timestamps: false, // This will disable `createdAt` and `updatedAt` columns
+        timestamps: false,
+        defaultScope: {
+            attributes: { exclude: ['password'] },
+        },
+        scopes: {
+            withPassword: {
+                attributes: {},
+            },
+        },
     }
+
 );
+
+User.beforeCreate(async (user, options) => {
+    user.password = await bcrypt.hash(user.password, 12);
+});
+
+User.prototype.validPassword = function (password) {
+    console.log("password:", password, this.password);
+
+    return bcrypt.compareSync(password, this.password);
+};
+
 
 export default User;
