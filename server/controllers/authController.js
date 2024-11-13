@@ -7,7 +7,7 @@ import config from "../config/config.js";
 export const protect = catchAsync(async (req, res, next) => {
     let token;
     if (req.headers.cookie) {
-        token = req.headers.cookie.slice(4);
+        token = req.headers.cookie.replace("access_token=", "");
     }
 
     if (!token) {
@@ -19,7 +19,7 @@ export const protect = catchAsync(async (req, res, next) => {
     const decoded = jwt.verify(token, config.jwt.secret);
 
     // check if user still exists
-    const currentUser = await User.findById(decoded.id);
+    const currentUser = await User.findByPk(decoded.id);
     if (!currentUser) {
         return next(
             new AppError(
@@ -35,6 +35,19 @@ export const protect = catchAsync(async (req, res, next) => {
     req.user = currentUser;
     next();
 })
+
+export const restrictTo = (...roles) => {
+    return (req, res, next) => {
+        console.log(req.user.role);
+        // roles ['admin, ...]  .role = 'user'
+        if (!roles.includes(req.user.role)) {
+            return next(
+                new AppError("You do not have permission to perform this action", 403)
+            )
+        }
+        next();
+    }
+}
 
 const signToken = id => {
     return jwt.sign({ id }, config.jwt.secret, {
