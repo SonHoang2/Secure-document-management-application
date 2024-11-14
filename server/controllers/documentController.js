@@ -3,6 +3,9 @@ import fs from 'fs';
 import crypto from 'crypto';
 import config from '../config/config.js';
 import { __dirname } from '../app.js';
+import AppError from '../utils/AppError.js';
+import catchAsync from '../utils/catchAsync.js';
+import pdfParse from 'pdf-parse';
 
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -10,23 +13,32 @@ const multerStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const ext = file.mimetype.split('/')[1];
-        console.log(ext);
+
         cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
     }
 });
 
 const multerFilter = (req, file, cb) => {
-    cb(null, true);
+    if (file.mimetype === 'application/pdf' || file.mimetype === 'text/plain') {
+        cb(null, true); // Accept the file
+    } else {
+        cb(new AppError("Only PDF and TXT files are allowed.", 400), false);
+    }
 }
 
 const upload = multer({
     storage: multerStorage,
-    // fileFilter: multerFilter,
+    fileFilter: multerFilter,
 })
 
 export const uploadDoc = upload.single('file');
 
 export const createDoc = (req, res, next) => {
+    if (!req.file) {
+        return next(new AppError('Please upload a file', 400));
+    }
+
+
     res.status(200).json({
         status: 'success',
         message: 'File uploaded successfully',
@@ -34,16 +46,21 @@ export const createDoc = (req, res, next) => {
     });
 }
 
-export const downloadDoc = (req, res, next) => {
+export const getDoc = catchAsync(async (req, res, next) => {
 
-    console.log(__dirname);
-    
-    
-    const file = `${__dirname}/upload/files/user-1-1731291565272.plain`;
-    console.log(file);
+    // const file = `${__dirname}/upload/files/user--1731492359862.pdf`;
 
-    res.sendFile(file);
-}
+    // const dataBuffer = fs.readFileSync(file);
+
+    // console.log(dataBuffer);
+
+
+    // // Extract text content from the PDF
+    // const pdfData = await pdfParse(dataBuffer);
+
+    // // Send the extracted text content to the client
+    // res.send(pdfData.text);
+});
 
 
 // export const encryptFile = (req, res, next) => {
