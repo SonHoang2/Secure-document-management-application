@@ -6,4 +6,9 @@ const sequelize = new Sequelize(config.database.name, config.database.username, 
     dialect: config.database.dialect
 });
 
+
+// await sequelize.sync({ force: true });
+// console.log('All models were synchronized successfully.');
+
+
 export default sequelize;

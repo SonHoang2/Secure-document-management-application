@@ -1,6 +1,7 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
+import Document from './documentModel.js';
 
 const User = sequelize.define('user', {
     id: {
@@ -57,8 +58,11 @@ const User = sequelize.define('user', {
             },
         },
     }
-
 );
+
+User.associate = (models) => {
+    User.hasMany(models.Document, { foreignKey: 'createdBy' });
+}
 
 User.beforeCreate(async (user, options) => {
     user.password = await bcrypt.hash(user.password, 12);

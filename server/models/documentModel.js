@@ -1,5 +1,7 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
+import { documentStatus } from '../shareVariable.js';
+import User from './userModel.js';
 
 const Document = sequelize.define('document', {
     id: {
@@ -21,23 +23,21 @@ const Document = sequelize.define('document', {
         allowNull: false
     },
     content: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false
     },
     createdAt: {
         type: DataTypes.DATE,
-        allowNull: false
+        defaultValue: DataTypes.NOW,
     },
     updateAt: {
         type: DataTypes.DATE,
-        allowNull: false
     },
     public: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
     },
     status: {
-        type: DataTypes.ENUM('pending', 'approved', "rejected"),
+        type: DataTypes.ENUM(documentStatus.Approved, documentStatus.Pending, documentStatus.Rejected),
         allowNull: false
     },
     createdBy: {
@@ -49,5 +49,9 @@ const Document = sequelize.define('document', {
         timestamps: true,
     }
 );
+
+Document.associate = (models) => {
+    Document.belongsTo(models.User, { foreignKey: 'createdBy' });
+};
 
 export default Document;

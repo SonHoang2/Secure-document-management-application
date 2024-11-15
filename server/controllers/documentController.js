@@ -1,11 +1,11 @@
 import multer from 'multer';
-import fs from 'fs';
-import crypto from 'crypto';
 import config from '../config/config.js';
-import { __dirname } from '../app.js';
+import { __dirname } from '../shareVariable.js';
 import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
-import pdfParse from 'pdf-parse';
+import Document from '../models/documentModel.js';
+import { documentStatus } from '../shareVariable.js';
+import fs from 'fs';
 
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -33,33 +33,51 @@ const upload = multer({
 
 export const uploadDoc = upload.single('file');
 
-export const createDoc = (req, res, next) => {
+export const createDoc = catchAsync(async (req, res, next) => {
     if (!req.file) {
         return next(new AppError('Please upload a file', 400));
     }
 
+    let fileType;
+    if (req.file.mimetype === 'application/pdf') fileType = 'pdf';
+    if (req.file.mimetype === 'text/plain') fileType = 'text';
 
-    res.status(200).json({
+    const doc = await Document.create({
+        title: req.file.filename,
+        type: fileType,
+        size: req.file.size,
+        content: req.file.path,
+        public: false,
+        status: documentStatus.Pending,
+        createdBy: req.user.id,
+    })
+
+    res.status(201).json({
         status: 'success',
         message: 'File uploaded successfully',
         data: req.file,
     });
-}
+})
 
 export const getDoc = catchAsync(async (req, res, next) => {
+    const doc = await Document.findByPk(req.params.id);
 
-    // const file = `${__dirname}/upload/files/user--1731492359862.pdf`;
+    if (!doc) {
+        return next(new AppError('Document not found', 404));
+    }
+
+    const file = `${__dirname}/${doc.content}`;
+
+    const dataBuffer = fs.readFileSync(file);
+
+    res.send(dataBuffer);
 
     // const dataBuffer = fs.readFileSync(file);
 
     // console.log(dataBuffer);
 
-
     // // Extract text content from the PDF
     // const pdfData = await pdfParse(dataBuffer);
-
-    // // Send the extracted text content to the client
-    // res.send(pdfData.text);
 });
 
 
