@@ -50,7 +50,7 @@ export default (err, req, res, next) => {
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
 
     if (config.env === 'development') {
-        console.log(error);
+        console.log(err);
     }
     sendErrorProd(error, res);
 }

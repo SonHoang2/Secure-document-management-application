@@ -1,47 +1,28 @@
-import crypto from 'crypto'
-import config from '../config.js'
+import crypto from 'crypto';
+import fs from 'fs';
+import config from '../config/config.js';
 
-const { secretKey, encryptionMethod } = config
+export function encrypt(algorithm, buffer, key, iv) {
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+    return encrypted;
+};
 
-if (!secretKey || !encryptionMethod) {
-    throw new Error('secretKey, and encryptionMethod are required')
+export function decrypt(algorithm, buffer, key, iv) {
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
+    const decrypted = Buffer.concat([decipher.update(buffer), decipher.final()]);
+    return decrypted;
 }
 
-// Encrypt data
-export function encryptData(text) {
-    let iv = crypto.randomBytes(16);
-    let cipher = crypto.createCipheriv(
-        "aes-256-cbc",
-        Buffer.from(secretKey),
-        iv
-    );
+export function saveEncryptedFile(buffer, filePath, key, iv) {
+    const encrypted = encrypt(config.encryptionMethod, buffer, key, iv);
 
-    let encrypted = cipher.update(text);
-
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    return iv.toString("hex") + ":" + encrypted.toString("hex");
+    fs.writeFileSync(filePath, encrypted);
 }
 
-// Decrypt data
-export function decryptData(text) {
-    let textParts = text.split(":");
-    let iv = Buffer.from(textParts.shift(), "hex");
-    let encryptedText = Buffer.from(textParts.join(":"), "hex");
-    let decipher = crypto.createDecipheriv(
-        "aes-256-cbc",
-        Buffer.from(secretKey),
-        iv
-    );
+export function getEncryptedFile(filePath, key, iv) {
 
-    // By default node uses PKCS padding, but Python uses null-byte
-    // padding instead. So calling cipher.setAutoPadding(false); after
-    // you create the decipher instance will make it work as expected:
-    //decipher.setAutoPadding(false);
-
-    let decrypted = decipher.update(encryptedText);
-
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-    return decrypted.toString();
+    const encrypted = fs.readFileSync(filePath);
+    const buffer = decrypt(config.encryptionMethod, encrypted, key, iv);
+    return buffer;
 }

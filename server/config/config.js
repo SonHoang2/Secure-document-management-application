@@ -7,6 +7,7 @@ export default {
     port: process.env.PORT,
     secretKey: process.env.SECRET_KEY,
     encryptionMethod: process.env.ENCRYPTION_METHOD,
+    iv: process.env.IV,
     database: {
         name: process.env.DB_NAME,
         username: process.env.DB_USERNAME,

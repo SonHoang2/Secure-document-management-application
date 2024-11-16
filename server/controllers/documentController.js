@@ -1,22 +1,15 @@
 import multer from 'multer';
 import config from '../config/config.js';
+import path from 'path';
 import { __dirname } from '../shareVariable.js';
-import AppError from '../utils/AppError.js';
-import catchAsync from '../utils/catchAsync.js';
 import Document from '../models/documentModel.js';
 import { documentStatus } from '../shareVariable.js';
-import fs from 'fs';
+import AppError from '../utils/AppError.js';
+import catchAsync from '../utils/catchAsync.js';
+import stream from 'stream';
+import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 
-const multerStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'upload/files');
-    },
-    filename: (req, file, cb) => {
-        const ext = file.mimetype.split('/')[1];
-
-        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-    }
-});
+const multerStorage = multer.memoryStorage()
 
 const multerFilter = (req, file, cb) => {
     if (file.mimetype === 'application/pdf' || file.mimetype === 'text/plain') {
@@ -38,15 +31,21 @@ export const createDoc = catchAsync(async (req, res, next) => {
         return next(new AppError('Please upload a file', 400));
     }
 
-    let fileType;
-    if (req.file.mimetype === 'application/pdf') fileType = 'pdf';
-    if (req.file.mimetype === 'text/plain') fileType = 'text';
+    const ext = req.file.mimetype.split('/')[1];
+    const title = `user-${req.user.id}-${Date.now()}`
+    const fileName = `${title}.${ext}`;
+    const filePath = path.join("./upload/files", fileName);
+    
+    saveEncryptedFile(req.file.buffer, filePath , config.secretKey, config.iv);
+
+    console.log(filePath);
+    
 
     const doc = await Document.create({
-        title: req.file.filename,
-        type: fileType,
+        title: title,
+        type: ext,
         size: req.file.size,
-        content: req.file.path,
+        content: filePath,
         public: false,
         status: documentStatus.Pending,
         createdBy: req.user.id,
@@ -54,8 +53,9 @@ export const createDoc = catchAsync(async (req, res, next) => {
 
     res.status(201).json({
         status: 'success',
-        message: 'File uploaded successfully',
-        data: req.file,
+        data: {
+            doc
+        }
     });
 })
 
@@ -66,66 +66,15 @@ export const getDoc = catchAsync(async (req, res, next) => {
         return next(new AppError('Document not found', 404));
     }
 
-    const file = `${__dirname}/${doc.content}`;
+    const fileName = `${doc.title}.${doc.type}`;
 
-    const dataBuffer = fs.readFileSync(file);
-
-    res.send(dataBuffer);
-
-    // const dataBuffer = fs.readFileSync(file);
-
-    // console.log(dataBuffer);
-
-    // // Extract text content from the PDF
-    // const pdfData = await pdfParse(dataBuffer);
+    const buffer = getEncryptedFile(path.join("./upload/files", fileName), config.secretKey, config.iv);
+    const readStream = new stream.PassThrough();
+    readStream.end(buffer);
+    res.writeHead(200, {
+        "Content-disposition": "attachment; fileName=" + fileName,
+        "Content-Type": "application/octet-stream",
+        "Content-Length": buffer.length
+    });
+    res.end(buffer);
 });
-
-
-// export const encryptFile = (req, res, next) => {
-//     try {
-//         console.log(req.file);
-
-//         const outputFilePath = `upload/files/${req.file.filename}`;
-//         const tempFilePath = req.file.path;
-
-//         const iv = crypto.randomBytes(16);
-//         const cipher = crypto.createCipheriv(
-//             encryptionMethod,
-//             Buffer.from(secretKey),
-//             iv
-//         );
-
-//         const input = fs.createReadStream(tempFilePath);
-//         const output = fs.createWriteStream(outputFilePath);
-
-//         // Write the IV as the first piece of data to the output file (in hex format)
-//         output.write(iv.toString("hex") + ":", "utf8");
-
-//         input
-//             .pipe(cipher)
-//             .pipe(output);
-
-//         // Delete the temp file when the encryption is complete
-//         output.on("finish", () => {
-//             fs.unlinkSync(tempFilePath);
-//         });
-
-//         output.on("error", (err) => {
-//             throw new Error(err);
-//         });
-
-//         res.status(200).json({
-//             status: 'success',
-//             message: 'File encrypted successfully',
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({
-//             status: 'error',
-//             message: 'An error occurred while encrypting the file',
-//         });
-//     }
-// }
-
-// export const decryptFile = (req, res, next) => {
-// }
