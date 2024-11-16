@@ -1,7 +1,7 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
-import Document from './documentModel.js';
+import { roleName } from '../shareVariable.js';
 
 const User = sequelize.define('user', {
     id: {
@@ -43,7 +43,7 @@ const User = sequelize.define('user', {
         defaultValue: true
     },
     role: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM(roleName.User, roleName.Admin, roleName.Manager),
         defaultValue: 'user'
     },
 },
@@ -73,6 +73,7 @@ User.prototype.validPassword = function (password) {
 
     return bcrypt.compareSync(password, this.password);
 };
+
 
 
 export default User;

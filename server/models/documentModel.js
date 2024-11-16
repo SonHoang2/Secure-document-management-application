@@ -1,7 +1,6 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
 import { documentStatus } from '../shareVariable.js';
-import User from './userModel.js';
 
 const Document = sequelize.define('document', {
     id: {

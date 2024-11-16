@@ -48,11 +48,17 @@ export const createUser = catchAsync(async (req, res) => {
 });
 
 export const updateUser = catchAsync(async (req, res) => {
-    const user = await User.update(req.body, {
+    const user = await User.findOne(req.body, {
         where: {
             id: req.params.id
-        }
+        },
     });
+
+    if (!user) {
+        return next(new AppError('No user found with that ID', 404));
+    }
+
+    await user.update(req.body);
 
     res.status(200).json({
         status: 'success',
