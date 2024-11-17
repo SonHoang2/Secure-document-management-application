@@ -5,7 +5,8 @@ import * as authController from '../controllers/authController.js';
 const router = Router();
 
 router.route("/:id")
-    .get(documentController.getDoc);
+    .get(documentController.getDoc)
+    .delete(documentController.deleteDoc)
 
 router.use(authController.protect);
 

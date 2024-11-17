@@ -48,7 +48,6 @@ export default (err, req, res, next) => {
     if (error.name === "SequelizeUniqueConstraintError") error = handleDuplicateFieldsDB(error);
     if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
-
     if (config.env === 'development') {
         console.log(err);
     }

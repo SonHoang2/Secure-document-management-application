@@ -10,7 +10,7 @@ try {
     console.error('Unable to connect to the database:', error);
 }
 
-sequelize.sync({ force: true })
+// sequelize.sync({ force: true })
 
 const port = config.port || 5000;
 app.listen(port, () => {

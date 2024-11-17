@@ -1,13 +1,15 @@
 import multer from 'multer';
-import config from '../config/config.js';
+import fs from 'fs';
 import path from 'path';
-import { __dirname } from '../shareVariable.js';
+import stream from 'stream';
 import Document from '../models/documentModel.js';
 import { documentStatus } from '../shareVariable.js';
 import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
-import stream from 'stream';
 import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
+import config from '../config/config.js';
+import { __dirname } from '../shareVariable.js';
+import { where } from 'sequelize';
 
 const multerStorage = multer.memoryStorage()
 
@@ -35,11 +37,11 @@ export const createDoc = catchAsync(async (req, res, next) => {
     const title = `user-${req.user.id}-${Date.now()}`
     const fileName = `${title}.${ext}`;
     const filePath = path.join("./upload/files", fileName);
-    
-    saveEncryptedFile(req.file.buffer, filePath , config.secretKey, config.iv);
+
+    saveEncryptedFile(req.file.buffer, filePath, config.secretKey, config.iv);
 
     console.log(filePath);
-    
+
 
     const doc = await Document.create({
         title: title,
@@ -77,4 +79,31 @@ export const getDoc = catchAsync(async (req, res, next) => {
         "Content-Length": buffer.length
     });
     res.end(buffer);
+});
+
+export const deleteDoc = catchAsync(async (req, res, next) => {
+    const doc = await Document.findByPk(req.params.id);
+
+    console.log(doc);
+
+    if (!doc) {
+        return next(new AppError('Document not found', 404));
+    }
+
+    const fileName = `${doc.title}.${doc.type}`;
+    const filePath = path.join("./upload/files", fileName);
+    // Delete file from disk
+    fs.unlinkSync(filePath);
+
+    // Delete record from database
+    await Document.destroy({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
 });

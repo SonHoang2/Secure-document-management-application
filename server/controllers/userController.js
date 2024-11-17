@@ -48,7 +48,7 @@ export const createUser = catchAsync(async (req, res) => {
 });
 
 export const updateUser = catchAsync(async (req, res) => {
-    const user = await User.findOne(req.body, {
+    const user = await User.findOne({
         where: {
             id: req.params.id
         },
@@ -69,18 +69,25 @@ export const updateUser = catchAsync(async (req, res) => {
 });
 
 export const deleteUser = catchAsync(async (req, res, next) => {
-    const user = await User.destroy({
+    const user = await User.findOne({
         where: {
             id: req.params.id
-        }
+        },
     });
 
     if (!user) {
         return next(new AppError('No user found with that ID', 404));
     }
 
-    res.status(204).json({
+    console.log("user:", user);
+    
+
+    await user.update({ active: false });
+
+    res.status(200).json({
         status: 'success',
-        data: null
+        data: {
+            user
+        }
     });
 });
