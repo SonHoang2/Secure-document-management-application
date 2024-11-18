@@ -29,7 +29,7 @@ const Document = sequelize.define('document', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
-    updateAt: {
+    updatedAt: {
         type: DataTypes.DATE,
     },
     public: {
@@ -51,6 +51,8 @@ const Document = sequelize.define('document', {
 
 Document.associate = (models) => {
     Document.belongsTo(models.User, { foreignKey: 'createdBy' });
+    Document.hasMany(models.Permission, { foreignKey: 'documentId' });
+    Document.hasMany(models.AuditLog, { foreignKey: 'documentId' });
 };
 
 export default Document;

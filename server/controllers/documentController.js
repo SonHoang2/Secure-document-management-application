@@ -11,7 +11,6 @@ import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
 import { __dirname } from '../shareVariable.js';
 import { filter } from '../utils/filter.js';
-import { where } from 'sequelize';
 
 const multerStorage = multer.memoryStorage()
 
@@ -177,7 +176,7 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
     });
 });
 
-export const getPendingDocs = catchAsync(async (req, res, next) => {
+export const getAllPendingDocs = catchAsync(async (req, res, next) => {
     const { page, limit, sort, fields } = filter(req);
 
     const docs = await Document.findAll({

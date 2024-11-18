@@ -26,4 +26,15 @@ const Permission = sequelize.define('permission', {
     }
 );
 
+Permission.associate = (models) => {
+    Permission.belongsTo(models.Document, {
+        foreignKey: 'documentId',
+        onDelete: 'CASCADE'
+    });
+    Permission.belongsTo(models.User, {
+        foreignKey: 'userId',
+        onDelete: 'CASCADE'
+    });
+};
+
 export default Permission;

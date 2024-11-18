@@ -62,6 +62,8 @@ const User = sequelize.define('user', {
 
 User.associate = (models) => {
     User.hasMany(models.Document, { foreignKey: 'createdBy' });
+    User.hasMany(models.Permission, { foreignKey: 'userId' });
+    User.hasMany(models.AuditLog, { foreignKey: 'userId' });
 }
 
 User.beforeCreate(async (user, options) => {

@@ -30,4 +30,9 @@ const AuditLog = sequelize.define('auditLog', {
     }
 );
 
+AuditLog.associate = (models) => {
+    AuditLog.belongsTo(models.User, { foreignKey: 'userId' });
+    AuditLog.belongsTo(models.Document, { foreignKey: 'documentId' });
+}
+
 export default AuditLog;

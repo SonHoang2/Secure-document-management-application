@@ -29,7 +29,7 @@ router.use(authController.restrictTo("admin", "manager"));
 
 router.get(
     "/status/pending",
-    documentController.getPendingDocs
+    documentController.getAllPendingDocs
 )
 
 router.patch(
