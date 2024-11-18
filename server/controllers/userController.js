@@ -1,9 +1,17 @@
 import User from '../models/userModel.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/AppError.js';
+import { filter } from '../utils/filter.js';
 
-export const getAllUsers = catchAsync(async (req, res) => {
-    const users = await User.findAll();
+export const getAllUsers = catchAsync(async (req, res, next) => {
+    const { page, limit, sort, fields } = filter(req);
+
+    const users = await User.findAll({
+        limit: limit,
+        offset: (page - 1) * limit,
+        order: sort,
+        attributes: fields,
+    });
 
     res.status(200).json({
         status: 'success',
@@ -29,7 +37,7 @@ export const getUser = catchAsync(async (req, res, next) => {
     });
 });
 
-export const createUser = catchAsync(async (req, res) => {
+export const createUser = catchAsync(async (req, res, next) => {
     const filter = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
@@ -47,7 +55,7 @@ export const createUser = catchAsync(async (req, res) => {
     });
 });
 
-export const updateUser = catchAsync(async (req, res) => {
+export const updateUser = catchAsync(async (req, res, next) => {
     const user = await User.findOne({
         where: {
             id: req.params.id
@@ -80,7 +88,7 @@ export const deleteUser = catchAsync(async (req, res, next) => {
     }
 
     console.log("user:", user);
-    
+
 
     await user.update({ active: false });
 

@@ -4,16 +4,47 @@ import * as authController from '../controllers/authController.js';
 
 const router = Router();
 
-router.route("/:id")
-    .get(documentController.getDoc)
-    .delete(documentController.deleteDoc)
+
+router.get(
+    "/:id/content/public",
+    documentController.getPublicDocContent
+)
+
+router.get("/public", documentController.getAllPublicDocs)
 
 router.use(authController.protect);
+
+router.get(
+    "/:id/content",
+    documentController.getDocContent
+)
 
 router.post(
     "/upload",
     documentController.uploadDoc,
     documentController.createDoc
+);
+
+router.use(authController.restrictTo("admin", "manager"));
+
+router.get(
+    "/status/pending",
+    documentController.getPendingDocs
+)
+
+router.patch(
+    "/:id",
+    documentController.updateDocument
+)
+
+router.get(
+    "/",
+    documentController.getAllDocs
+)
+
+router.delete("/:id", 
+    authController.restrictTo("admin"),
+    documentController.deleteDoc
 );
 
 

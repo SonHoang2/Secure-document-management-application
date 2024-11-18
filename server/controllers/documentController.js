@@ -3,12 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import stream from 'stream';
 import Document from '../models/documentModel.js';
+import Permission from '../models/permissionModel.js';
 import { documentStatus } from '../shareVariable.js';
 import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
 import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
 import { __dirname } from '../shareVariable.js';
+import { filter } from '../utils/filter.js';
 import { where } from 'sequelize';
 
 const multerStorage = multer.memoryStorage()
@@ -61,24 +63,52 @@ export const createDoc = catchAsync(async (req, res, next) => {
     });
 })
 
-export const getDoc = catchAsync(async (req, res, next) => {
+export const getPublicDocContent = catchAsync(async (req, res, next) => {
+    const doc = await Document.findOne({
+        where: {
+            id: req.params.id,
+            public: true
+        }
+    })
+
+    if (!doc) {
+        return next(new AppError('Document not found or need to login to access', 404));
+    }
+
+    readDocument(doc, res);
+});
+
+export const getDocContent = catchAsync(async (req, res, next) => {
     const doc = await Document.findByPk(req.params.id);
 
     if (!doc) {
         return next(new AppError('Document not found', 404));
     }
 
-    const fileName = `${doc.title}.${doc.type}`;
+    console.log(req.user.role);
 
-    const buffer = getEncryptedFile(path.join("./upload/files", fileName), config.secretKey, config.iv);
-    const readStream = new stream.PassThrough();
-    readStream.end(buffer);
-    res.writeHead(200, {
-        "Content-disposition": "attachment; fileName=" + fileName,
-        "Content-Type": "application/octet-stream",
-        "Content-Length": buffer.length
-    });
-    res.end(buffer);
+
+    if (
+        doc.public ||
+        doc.createdBy === req.user.id ||
+        req.user.role === 'admin' ||
+        req.user.role === 'manager'
+    ) {
+        readDocument(doc, res);
+    } else {
+        const permission = await Permission.findOne({
+            where: {
+                documentId: req.params.id,
+                userId: req.user.id
+            }
+        });
+
+        if (!permission) {
+            return next(new AppError('You do not have permission to access this document', 403));
+        }
+
+        readDocument(doc, res);
+    }
 });
 
 export const deleteDoc = catchAsync(async (req, res, next) => {
@@ -107,3 +137,96 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
         data: null
     });
 });
+
+export const getAllPublicDocs = catchAsync(async (req, res, next) => {
+    const { page, limit, sort, fields } = filter(req);
+
+    const docs = await Document.findAll({
+        limit: limit,
+        offset: (page - 1) * limit,
+        order: sort,
+        attributes: fields,
+        where: {
+            public: true
+        }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            docs
+        }
+    });
+});
+
+export const getAllDocs = catchAsync(async (req, res, next) => {
+    const { page, limit, sort, fields } = filter(req);
+
+    const docs = await Document.findAll({
+        limit: limit,
+        offset: (page - 1) * limit,
+        order: sort,
+        attributes: fields,
+    });
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            docs
+        }
+    });
+});
+
+export const getPendingDocs = catchAsync(async (req, res, next) => {
+    const { page, limit, sort, fields } = filter(req);
+
+    const docs = await Document.findAll({
+        where: {
+            status: documentStatus.Pending
+        },
+        limit: limit,
+        offset: (page - 1) * limit,
+        order: sort,
+        attributes: fields,
+    });
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            docs
+        }
+    });
+});
+
+export const updateDocument = catchAsync(async (req, res, next) => {
+    const doc = await Document.findByPk(req.params.id);
+
+    if (!doc) {
+        return next(new AppError('Document not found', 404));
+    }
+
+    const allowedFields = ['title', 'type', "size", "content", "public", "status", "createdBy"];
+
+    await doc.update(req.body, { fields: allowedFields });
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            doc
+        }
+    });
+});
+
+const readDocument = (doc, res) => {
+    const fileName = `${doc.title}.${doc.type}`;
+
+    const buffer = getEncryptedFile(path.join("./upload/files", fileName), config.secretKey, config.iv);
+    const readStream = new stream.PassThrough();
+    readStream.end(buffer);
+    res.writeHead(200, {
+        "Content-disposition": "attachment; fileName=" + fileName,
+        "Content-Type": "application/octet-stream",
+        "Content-Length": buffer.length
+    });
+    res.end(buffer);
+}
