@@ -57,6 +57,12 @@ const Login = ({ navigation }) => {
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                <Text style={styles.redirectText}>
+                    Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -90,10 +96,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 8,
+        marginBottom: 15,
     },
     buttonText: {
         color: '#fff',
         fontSize: 16,
+        fontWeight: 'bold',
+    },
+    redirectText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#888',
+    },
+    linkText: {
+        color: '#007BFF',
         fontWeight: 'bold',
     },
 });

@@ -10,8 +10,6 @@ router.get(
     documentController.getPublicDocContent
 )
 
-router.get("/public", documentController.getAllPublicDocs)
-
 router.use(authController.protect);
 
 router.get(

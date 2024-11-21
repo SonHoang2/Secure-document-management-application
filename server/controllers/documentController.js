@@ -137,27 +137,6 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
     });
 });
 
-export const getAllPublicDocs = catchAsync(async (req, res, next) => {
-    const { page, limit, sort, fields } = filter(req);
-
-    const docs = await Document.findAll({
-        limit: limit,
-        offset: (page - 1) * limit,
-        order: sort,
-        attributes: fields,
-        where: {
-            public: true
-        }
-    });
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            docs
-        }
-    });
-});
-
 export const getAllDocs = catchAsync(async (req, res, next) => {
     const { page, limit, sort, fields } = filter(req);
 
