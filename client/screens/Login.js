@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
-import { USERS_URL } from '../customValue';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USERS_URL } from '../shareVariables';
 
-const Login = ({ navigation }) => {
+const Login = ({ navigation, route }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { setUser } = route.params;
+
 
     const handleSubmit = async () => {
         try {
@@ -26,7 +28,8 @@ const Login = ({ navigation }) => {
 
             await AsyncStorage.setItem('user', JSON.stringify(res.data.data.user));
             Alert.alert('Success', 'Login successful');
-            navigation.navigate('Home');
+            setUser(res.data.data.user);
+
         } catch (error) {
             if (error.response) {
                 Alert.alert('Error', error.response.data.message);

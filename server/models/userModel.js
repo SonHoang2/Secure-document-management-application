@@ -20,11 +20,28 @@ const User = sequelize.define('user', {
     },
     email: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: {
+                args: true,
+                msg: "The email is invalid"
+            },
+        }
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isComplex(value) {
+                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,20}$/;
+                if (!regex.test(value)) {
+                    throw new Error(
+                        "Password must be 12-20 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+                    );
+                }
+            }
+        }
     },
     avatar: {
         type: DataTypes.STRING,

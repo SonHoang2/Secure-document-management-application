@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import axios from 'axios';
+import { USERS_URL } from '../shareVariables';
+
 
 const SignUp = ({ navigation }) => {
     const [formData, setFormData] = useState({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -13,11 +17,11 @@ const SignUp = ({ navigation }) => {
         setFormData({ ...formData, [key]: value });
     };
 
-    const handleSignUp = () => {
-        const { name, email, password, confirmPassword } = formData;
+    const handleSignUp = async () => {
+        const { firstName, lastName, email, password, confirmPassword } = formData;
 
         // Simple validation
-        if (!name || !email || !password || !confirmPassword) {
+        if (!firstName || !lastName || !email || !password || !confirmPassword) {
             Alert.alert('Error', 'All fields are required.');
             return;
         }
@@ -27,25 +31,36 @@ const SignUp = ({ navigation }) => {
             return;
         }
 
-        // Proceed with API call or navigation
+        await axios.post(USERS_URL + `/signup`, {
+            firstName,
+            lastName,
+            email,
+            password,
+        });
+
         Alert.alert('Success', 'Account created successfully!');
-        navigation.navigate('Login'); // Navigate to the login page
+
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Create Account</Text>
-
-            {/* Name Input */}
             <TextInput
                 style={styles.input}
-                placeholder="Name"
+                placeholder="First Name"
                 placeholderTextColor="#888"
-                value={formData.name}
-                onChangeText={(value) => handleInputChange('name', value)}
+                value={formData.firstName}
+                onChangeText={(value) => handleInputChange('firstName', value)}
+                required
             />
-
-            {/* Email Input */}
+            <TextInput
+                style={styles.input}
+                placeholder="Last Name"
+                placeholderTextColor="#888"
+                value={formData.lastName}
+                onChangeText={(value) => handleInputChange('lastName', value)}
+                required
+            />
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -55,7 +70,6 @@ const SignUp = ({ navigation }) => {
                 onChangeText={(value) => handleInputChange('email', value)}
             />
 
-            {/* Password Input */}
             <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -65,7 +79,6 @@ const SignUp = ({ navigation }) => {
                 onChangeText={(value) => handleInputChange('password', value)}
             />
 
-            {/* Confirm Password Input */}
             <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
@@ -75,12 +88,10 @@ const SignUp = ({ navigation }) => {
                 onChangeText={(value) => handleInputChange('confirmPassword', value)}
             />
 
-            {/* Sign Up Button */}
             <TouchableOpacity style={styles.button} onPress={handleSignUp}>
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
 
-            {/* Redirect to Login */}
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.redirectText}>
                     Already have an account? <Text style={styles.linkText}>Log in</Text>

@@ -24,6 +24,8 @@ export const roleName = {
 export const auditLogAction = {
     Read: 'read',
     Modified: 'modified',
+    Created: 'created',
+    Deleted: 'deleted',
     Approved: 'approved',
     Rejected: 'rejected',
 }

@@ -1,5 +1,6 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
+import { auditLogAction } from '../shareVariable.js';
 
 const AuditLog = sequelize.define('auditLog', {
     id: {
@@ -17,7 +18,14 @@ const AuditLog = sequelize.define('auditLog', {
         allowNull: false
     },
     action: {
-        type: DataTypes.ENUM('read', 'modified', 'approved', 'rejected'),
+        type: DataTypes.ENUM(
+            auditLogAction.Read,
+            auditLogAction.Modified,
+            auditLogAction.Created,
+            auditLogAction.Deleted,
+            auditLogAction.Approved,
+            auditLogAction.Rejected
+        ),
         allowNull: false
     },
     timestamp: {
