@@ -1,4 +1,4 @@
-export function filter(req) {
+export function query(req) {
     const page = req.query.page * 1 || 1;
     const limit = req.query.limit * 1 || 10;
     const fields = req.query.fields?.split(',');

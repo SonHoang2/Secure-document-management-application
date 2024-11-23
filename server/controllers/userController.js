@@ -1,10 +1,10 @@
 import User from '../models/userModel.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/AppError.js';
-import { filter } from '../utils/filter.js';
+import { query } from '../utils/filter.js';
 
 export const getAllUsers = catchAsync(async (req, res, next) => {
-    const { page, limit, sort, fields } = filter(req);
+    const { page, limit, sort, fields } = query(req);
 
     const users = await User.findAll({
         limit: limit,

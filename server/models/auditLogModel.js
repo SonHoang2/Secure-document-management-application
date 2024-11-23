@@ -30,7 +30,7 @@ const AuditLog = sequelize.define('auditLog', {
     },
     timestamp: {
         type: DataTypes.DATE,
-        allowNull: false
+        defaultValue: DataTypes.NOW
     },
 },
     {

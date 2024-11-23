@@ -56,7 +56,7 @@ export default (err, req, res, next) => {
     if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
     if (config.env === 'development') {
-        console.log(err.name);
+        console.log(err);
     }
     sendErrorProd(error, res);
 }

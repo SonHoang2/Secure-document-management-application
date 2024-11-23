@@ -19,7 +19,14 @@ export const protect = catchAsync(async (req, res, next) => {
     const decoded = jwt.verify(token, config.jwt.secret);
 
     // check if user still exists
-    const currentUser = await User.findByPk(decoded.id);
+    const currentUser = await User.findOne(
+        {
+            where: {
+                id: decoded.id,
+                active: true
+            }
+        });
+
     if (!currentUser) {
         return next(
             new AppError(

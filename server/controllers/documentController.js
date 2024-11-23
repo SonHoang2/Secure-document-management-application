@@ -4,13 +4,14 @@ import path from 'path';
 import stream from 'stream';
 import Document from '../models/documentModel.js';
 import Permission from '../models/permissionModel.js';
-import { documentStatus } from '../shareVariable.js';
+import AuditLog from '../models/auditLogModel.js';
+import { auditLogAction, documentStatus } from '../shareVariable.js';
 import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
 import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
 import { __dirname } from '../shareVariable.js';
-import { filter } from '../utils/filter.js';
+import { query } from '../utils/filter.js';
 
 const multerStorage = multer.memoryStorage()
 
@@ -43,7 +44,6 @@ export const createDoc = catchAsync(async (req, res, next) => {
 
     console.log(filePath);
 
-
     const doc = await Document.create({
         title: title,
         type: ext,
@@ -53,6 +53,12 @@ export const createDoc = catchAsync(async (req, res, next) => {
         status: documentStatus.Pending,
         createdBy: req.user.id,
     })
+
+    await AuditLog.create({
+        action: auditLogAction.Created,
+        documentId: doc.id,
+        userId: req.user.id
+    });
 
     res.status(201).json({
         status: 'success',
@@ -84,15 +90,18 @@ export const getDocContent = catchAsync(async (req, res, next) => {
         return next(new AppError('Document not found', 404));
     }
 
-    console.log(req.user.role);
-
-
     if (
         doc.public ||
         doc.createdBy === req.user.id ||
         req.user.role === 'admin' ||
         req.user.role === 'manager'
     ) {
+        await AuditLog.create({
+            action: auditLogAction.Read,
+            documentId: doc.id,
+            userId: req.user.id
+        });
+
         readDocument(doc, res);
     } else {
         const permission = await Permission.findOne({
@@ -105,6 +114,12 @@ export const getDocContent = catchAsync(async (req, res, next) => {
         if (!permission) {
             return next(new AppError('You do not have permission to access this document', 403));
         }
+
+        await AuditLog.create({
+            action: auditLogAction.Read,
+            documentId: doc.id,
+            userId: req.user.id
+        });
 
         readDocument(doc, res);
     }
@@ -131,6 +146,12 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
         }
     });
 
+    await AuditLog.create({
+        action: auditLogAction.Deleted,
+        documentId: doc.id,
+        userId: req.user.id
+    });
+
     res.status(204).json({
         status: 'success',
         data: null
@@ -138,7 +159,7 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
 });
 
 export const getAllDocs = catchAsync(async (req, res, next) => {
-    const { page, limit, sort, fields } = filter(req);
+    const { page, limit, sort, fields } = query(req);
 
     const docs = await Document.findAll({
         limit: limit,
@@ -156,7 +177,7 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
 });
 
 export const getAllPendingDocs = catchAsync(async (req, res, next) => {
-    const { page, limit, sort, fields } = filter(req);
+    const { page, limit, sort, fields } = query(req);
 
     const docs = await Document.findAll({
         where: {
@@ -186,6 +207,12 @@ export const updateDocument = catchAsync(async (req, res, next) => {
     const allowedFields = ['title', 'type', "size", "content", "public", "status", "createdBy"];
 
     await doc.update(req.body, { fields: allowedFields });
+
+    await AuditLog.create({
+        action: auditLogAction.Updated,
+        documentId: doc.id,
+        userId: req.user.id
+    });
 
     res.status(200).json({
         status: 'success',

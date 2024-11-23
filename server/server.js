@@ -2,6 +2,10 @@
 import app from "./app.js";
 import config from "./config/config.js";
 import sequelize from "./db.js";
+import Permission from "./models/permissionModel.js";
+import User from "./models/userModel.js";
+import Document from "./models/documentModel.js";
+import AuditLog from "./models/auditLogModel.js";
 
 try {
     await sequelize.authenticate();
@@ -9,6 +13,20 @@ try {
 } catch (error) {
     console.error('Unable to connect to the database:', error);
 }
+
+const db = {
+    Permission,
+    User,
+    Document,
+    AuditLog
+};
+
+
+Object.keys(db).forEach((modelName) => {
+    if (db[modelName].associate) {
+        db[modelName].associate(db);
+    }
+});
 
 // sequelize.sync({ force: true })
 
