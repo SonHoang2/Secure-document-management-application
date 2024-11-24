@@ -15,13 +15,11 @@ import { query } from '../utils/filter.js';
 
 
 const readDocument = (doc, res) => {
-    const fileName = `${doc.title}.${doc.type}`;
-
-    const buffer = getEncryptedFile(path.join("./upload/files", fileName), config.secretKey, config.iv);
+    const buffer = getEncryptedFile(doc.content, config.secretKey, config.iv);
     const readStream = new stream.PassThrough();
     readStream.end(buffer);
     res.writeHead(200, {
-        "Content-disposition": "attachment; fileName=" + fileName,
+        "Content-disposition": "attachment; fileName=" + doc.title,
         "Content-Type": "application/octet-stream",
         "Content-Length": buffer.length
     });

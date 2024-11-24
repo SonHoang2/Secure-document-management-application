@@ -17,8 +17,11 @@ const Home = ({ navigation }) => {
         }
     }
 
+    console.log(navigation);
+    
+
     const renderDocument = ({ item }) => (
-        <TouchableOpacity style={styles.card} onPress={navigation}>
+        <TouchableOpacity style={styles.card}>
             <Text style={styles.title}>{item.title}</Text>
             <Text>Type: {item.type}</Text>
             <Text>Size: {item.size} KB</Text>
