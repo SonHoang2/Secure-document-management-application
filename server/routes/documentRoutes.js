@@ -4,13 +4,14 @@ import * as authController from '../controllers/authController.js';
 
 const router = Router();
 
-
 router.get(
     "/:id/content/public",
     documentController.getPublicDocContent
 )
 
 router.use(authController.protect);
+
+router.get('/recent', documentController.getRecentDocs);
 
 router.get(
     "/:id/content",
@@ -44,6 +45,5 @@ router.delete("/:id",
     authController.restrictTo("admin"),
     documentController.deleteDoc
 );
-
 
 export default router;

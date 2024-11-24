@@ -1,9 +1,26 @@
+import axios from 'axios';
 import React from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USERS_URL } from '../shareVariables';
 
 const Settings = ({ route }) => {
     const { setUser } = route.params;
+
+    const signOut = async () => {
+        try {
+            await axios.get(USERS_URL + '/logout', { withCredentials: true });
+            alert("You have been signed out.");
+        } catch (error) {
+            console.log(error);
+            
+            if (error.response) {
+                Alert.alert('Error', error.response.data.message);
+            } else {
+                Alert.alert('Error', error.message);
+            }
+        }
+        setUser(null);
+    }
 
     const closeAccountAlert = () => {
         Alert.alert(
@@ -25,10 +42,7 @@ const Settings = ({ route }) => {
                 { text: "Cancel", style: "cancel" },
                 {
                     text: "Sign Out",
-                    onPress: async () => {
-                        await AsyncStorage.removeItem('user');
-                        setUser(null);
-                    }
+                    onPress: signOut,
                 },
             ]
         );

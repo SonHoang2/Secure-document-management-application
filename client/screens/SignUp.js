@@ -4,7 +4,7 @@ import axios from 'axios';
 import { USERS_URL } from '../shareVariables';
 
 
-const SignUp = ({ navigation }) => {
+const SignUp = ({ navigation, route }) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -13,33 +13,43 @@ const SignUp = ({ navigation }) => {
         confirmPassword: '',
     });
 
+    const { setUser } = route.params;
+
     const handleInputChange = (key, value) => {
         setFormData({ ...formData, [key]: value });
     };
 
-    const handleSignUp = async () => {
-        const { firstName, lastName, email, password, confirmPassword } = formData;
+    const handleSubmit = async () => {
+        try {
+            const { firstName, lastName, email, password, confirmPassword } = formData;
 
-        // Simple validation
-        if (!firstName || !lastName || !email || !password || !confirmPassword) {
-            Alert.alert('Error', 'All fields are required.');
-            return;
+            // Simple validation
+            if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                Alert.alert('Error', 'All fields are required.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Alert.alert('Error', 'Passwords do not match.');
+                return;
+            }
+
+            const res = await axios.post(USERS_URL + `/signup`, {
+                firstName,
+                lastName,
+                email,
+                password,
+            });
+
+            Alert.alert('Success', 'Account created successfully!');
+            setUser(res.data.data.user);
+        } catch (error) {
+            if (error.response) {
+                Alert.alert('Error', error.response.data.message);
+            } else {
+                Alert.alert('Error', error.message);
+            }
         }
-
-        if (password !== confirmPassword) {
-            Alert.alert('Error', 'Passwords do not match.');
-            return;
-        }
-
-        await axios.post(USERS_URL + `/signup`, {
-            firstName,
-            lastName,
-            email,
-            password,
-        });
-
-        Alert.alert('Success', 'Account created successfully!');
-
     };
 
     return (
@@ -88,7 +98,7 @@ const SignUp = ({ navigation }) => {
                 onChangeText={(value) => handleInputChange('confirmPassword', value)}
             />
 
-            <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
 

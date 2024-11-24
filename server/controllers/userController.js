@@ -37,6 +37,11 @@ export const getUser = catchAsync(async (req, res, next) => {
     });
 });
 
+export const getMe = catchAsync(async (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+});
+
 export const createUser = catchAsync(async (req, res, next) => {
     const filter = {
         firstName: req.body.firstName,

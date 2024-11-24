@@ -13,6 +13,22 @@ import config from '../config/config.js';
 import { __dirname } from '../shareVariable.js';
 import { query } from '../utils/filter.js';
 
+
+const readDocument = (doc, res) => {
+    const fileName = `${doc.title}.${doc.type}`;
+
+    const buffer = getEncryptedFile(path.join("./upload/files", fileName), config.secretKey, config.iv);
+    const readStream = new stream.PassThrough();
+    readStream.end(buffer);
+    res.writeHead(200, {
+        "Content-disposition": "attachment; fileName=" + fileName,
+        "Content-Type": "application/octet-stream",
+        "Content-Length": buffer.length
+    });
+    res.end(buffer);
+}
+
+
 const multerStorage = multer.memoryStorage()
 
 const multerFilter = (req, file, cb) => {
@@ -42,10 +58,8 @@ export const createDoc = catchAsync(async (req, res, next) => {
 
     saveEncryptedFile(req.file.buffer, filePath, config.secretKey, config.iv);
 
-    console.log(filePath);
-
     const doc = await Document.create({
-        title: title,
+        title: req.file.originalname,
         type: ext,
         size: req.file.size,
         content: filePath,
@@ -222,16 +236,32 @@ export const updateDocument = catchAsync(async (req, res, next) => {
     });
 });
 
-const readDocument = (doc, res) => {
-    const fileName = `${doc.title}.${doc.type}`;
+export const getRecentDocs = catchAsync(async (req, res, next) => {
+    const { page, limit, sort, fields } = query(req);
 
-    const buffer = getEncryptedFile(path.join("./upload/files", fileName), config.secretKey, config.iv);
-    const readStream = new stream.PassThrough();
-    readStream.end(buffer);
-    res.writeHead(200, {
-        "Content-disposition": "attachment; fileName=" + fileName,
-        "Content-Type": "application/octet-stream",
-        "Content-Length": buffer.length
+    const docs = await Document.findAll({
+        limit: limit,
+        offset: (page - 1) * limit,
+        order: sort,
+        attributes: fields,
+        where: {
+            createdBy: req.user.id
+        },
+        include: [
+            {
+                model: AuditLog,
+                where: {
+                    userId: req.user.id
+                },
+                order: [['createdAt', 'DESC']],
+            }
+        ]
     });
-    res.end(buffer);
-}
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            docs
+        }
+    });
+});

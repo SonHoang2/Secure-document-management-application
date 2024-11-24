@@ -26,7 +26,6 @@ const Login = ({ navigation, route }) => {
 
             console.log(res);
 
-            await AsyncStorage.setItem('user', JSON.stringify(res.data.data.user));
             Alert.alert('Success', 'Login successful');
             setUser(res.data.data.user);
 

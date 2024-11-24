@@ -9,6 +9,9 @@ router.post('/login', authController.login);
 
 router.use(authController.protect);
 
+router.get('/me', userController.getMe, userController.getUser);
+router.get('/logout', authController.logout);
+
 router.use(authController.restrictTo('admin'));
 
 router.route('/')

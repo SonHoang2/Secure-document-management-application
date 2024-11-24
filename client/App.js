@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+import axios from 'axios';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -11,6 +11,8 @@ import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 import Search from './screens/components/Search';
 import Settings from './screens/Settings';
+import DocumentContent from './screens/DocumentContent';
+import { USERS_URL } from './shareVariables';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -20,16 +22,16 @@ export default function App() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const storedUser = await AsyncStorage.getItem('user');
-            setUser(storedUser);
+            const res = await axios.get(USERS_URL + '/me', { withCredentials: true });
+            console.log(res);
+            setUser(res.data.data.user);
         };
-        checkAuth();
-    }, []);
 
-    const handleSignOut = async () => {
-        await AsyncStorage.removeItem('user');
-        setUser(null); // Update state to trigger re-render
-    };
+        if (!user) {
+            checkAuth();
+        }
+
+    }, [user]);
 
     function Root() {
         return (
@@ -72,10 +74,11 @@ export default function App() {
                     user ? (
                         <>
                             <Stack.Screen name="Root" component={Root} options={{ headerShown: false }} />
+                            <Stack.Screen name="documentContent" component={DocumentContent} />
                         </>
                     ) : (
                         <>
-                            <Stack.Screen name="SignUp" component={SignUp} />
+                            <Stack.Screen name="SignUp" component={SignUp} initialParams={{ setUser }} />
                             <Stack.Screen name="Login" component={Login} initialParams={{ setUser }} />
                         </>
                     )
