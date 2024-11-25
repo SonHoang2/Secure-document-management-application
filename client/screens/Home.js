@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, Alert } from 'react-native';
 import { useState } from 'react';
 import axios from 'axios';
 import { DOCS_URL } from '../shareVariables';
@@ -13,15 +13,19 @@ const Home = ({ navigation }) => {
             const res = await axios.get(DOCS_URL + "/recent");
             setDocs(res.data.data.docs);
         } catch (error) {
-            alert(error.response.data.message);
+            if (error.response) {
+                Alert.alert('Error', error.response.data.message);
+            } else {
+                Alert.alert('Error', error.message);
+            }
         }
     }
 
     console.log(navigation);
-    
+
 
     const renderDocument = ({ item }) => (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
             <Text style={styles.title}>{item.title}</Text>
             <Text>Type: {item.type}</Text>
             <Text>Size: {item.size} KB</Text>
