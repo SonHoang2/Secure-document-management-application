@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { USERS_URL } from '../shareVariables';
 
 const Login = ({ navigation, route }) => {

@@ -2,7 +2,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { DOCS_URL } from '../../shareVariables';
-import Pdf from 'react-native-pdf';
+import { WebView } from 'react-native-webview';
+import FileViewer from "react-native-file-viewer";
 
 const PdfFile = ({ doc }) => {
     const [content, setContent] = useState('');
@@ -25,10 +26,12 @@ const PdfFile = ({ doc }) => {
         getFile();
     }, []);
 
+    const pdfLink = DOCS_URL + `/9/content/public`;
+
     return (
         <View style={styles.container}>
 
-        </View>
+        </View >
     );
 };
 
