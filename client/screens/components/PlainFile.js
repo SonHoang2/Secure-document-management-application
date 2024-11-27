@@ -1,26 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { DOCS_URL } from '../../shareVariables';
 
 const PlainFile = ({ doc }) => {
     const [content, setContent] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-
-    const toggleMode = () => {
-        setIsEditing((prev) => !prev);
-    };
 
     const saveChanges = () => {
         Alert.alert('Success', 'content has been saved!');
-        setIsEditing(false);
     };
 
     const getFile = async () => {
         try {
             const res = await axios.get(DOCS_URL + `/${doc.id}/content`);
-            console.log(res.data);
-            
             setContent(res.data);
         } catch (error) {
             if (error.response) {
@@ -36,35 +28,44 @@ const PlainFile = ({ doc }) => {
     }, []);
 
     return (
-        <View>
-            <View style={styles.toggleContainer}>
-                <Button
-                    title={isEditing ? 'Switch to Read Mode' : 'Switch to Edit Mode'}
-                    onPress={toggleMode}
+        <View style={styles.container}>
+            <View style={styles.contentContainer}>
+                <TextInput
+                    style={styles.textInput}
+                    multiline
+                    value={content}
+                    onChangeText={setContent}
                 />
             </View>
-            <View style={styles.contentContainer}>
-                {isEditing ? (
-                    <TextInput
-                        style={styles.textInput}
-                        multiline
-                        value={content}
-                        onChangeText={setContent}
-                    />
-                ) : (
-                    <Text style={styles.textContent}>{content}</Text>
-                )}
-            </View>
-            {isEditing && (
-                <Button title="Save Changes" onPress={saveChanges} color="#4CAF50" />
-            )}
+            <Button title='Save Changes' onPress={saveChanges} />
         </View>
     );
 }
 
-
 const styles = StyleSheet.create({
-
+    container: {
+        flex: 1,
+        margin: 15
+    },
+    contentContainer: {
+        flex: 1,
+        marginBottom: 40,
+    },
+    textInput: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 10,
+        fontSize: 16,
+        backgroundColor: '#fff',
+        textAlignVertical: 'top',
+    },
+    textContent: {
+        fontSize: 16,
+        color: '#333',
+        lineHeight: 24,
+    },
 });
 
 export default PlainFile;

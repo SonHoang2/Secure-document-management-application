@@ -18,10 +18,7 @@
     "expo-status-bar": "~2.0.0",
     "react": "18.3.1",
     "react-native": "0.76.3",
-    "react-native-blob-util": "^0.19.11",
-    "react-native-file-viewer": "^2.1.5",
     "react-native-gesture-handler": "^2.21.2",
-    "react-native-pdf": "^6.7.5",
     "react-native-reanimated": "^3.16.3",
     "react-native-vector-icons": "^10.2.0",
     "react-native-webview": "^13.12.4"
