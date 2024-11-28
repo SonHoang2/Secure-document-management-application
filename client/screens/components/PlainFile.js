@@ -6,12 +6,16 @@ import { DOCS_URL } from '../../shareVariables';
 const PlainFile = ({ doc }) => {
     const [content, setContent] = useState(null);
 
-    const saveChanges = () => {
+    const saveChanges = async () => {
         try {
-            
+            await axios.patch(DOCS_URL + `/${doc.id}/content`, { content });
             Alert.alert('Success', 'content has been saved!');
         } catch (error) {
-            
+            if (error.response) {
+                Alert.alert('Error', error.response.data.message);
+            } else {
+                Alert.alert('Error', error.message);
+            }
         }
     };
 
