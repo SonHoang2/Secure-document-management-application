@@ -4,19 +4,16 @@ import * as authController from '../controllers/authController.js';
 
 const router = Router();
 
-router.get(
-    "/:id/content/public",
-    documentController.getPublicDocContent
-)
-
 router.use(authController.protect);
 
 router.get('/recent', documentController.getRecentDocs);
 
-router.get(
-    "/:id/content",
-    documentController.getDocContent
-)
+router.route("/:id/content")
+    .get(documentController.getDocContent)
+    .patch(
+        documentController.uploadDoc,
+        documentController.updateDocContent
+    );
 
 router.post(
     "/upload",
@@ -33,7 +30,7 @@ router.get(
 
 router.patch(
     "/:id",
-    documentController.updateDocument
+    documentController.updateDoc
 )
 
 router.get(
@@ -41,7 +38,7 @@ router.get(
     documentController.getAllDocs
 )
 
-router.delete("/:id", 
+router.delete("/:id",
     authController.restrictTo("admin"),
     documentController.deleteDoc
 );

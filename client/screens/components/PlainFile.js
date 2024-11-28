@@ -7,7 +7,12 @@ const PlainFile = ({ doc }) => {
     const [content, setContent] = useState(null);
 
     const saveChanges = () => {
-        Alert.alert('Success', 'content has been saved!');
+        try {
+            
+            Alert.alert('Success', 'content has been saved!');
+        } catch (error) {
+            
+        }
     };
 
     const getFile = async () => {
@@ -37,7 +42,9 @@ const PlainFile = ({ doc }) => {
                     onChangeText={setContent}
                 />
             </View>
-            <Button title='Save Changes' onPress={saveChanges} />
+            <TouchableOpacity style={styles.button} onPress={saveChanges}>
+                <Text style={styles.buttonText}>Save Changes</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -49,7 +56,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        marginBottom: 40,
+        marginBottom: 10,
     },
     textInput: {
         flex: 1,
@@ -66,6 +73,16 @@ const styles = StyleSheet.create({
         color: '#333',
         lineHeight: 24,
     },
+    button: {
+        backgroundColor: '#28a745',
+        padding: 20,
+        borderRadius: 8,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
+    }
 });
 
 export default PlainFile;

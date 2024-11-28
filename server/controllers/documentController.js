@@ -30,10 +30,10 @@ const readDocument = (doc, res) => {
 const multerStorage = multer.memoryStorage()
 
 const multerFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || file.mimetype === 'text/plain') {
+    if (file.mimetype === 'text/plain') {
         cb(null, true); // Accept the file
     } else {
-        cb(new AppError("Only PDF and TXT files are allowed.", 400), false);
+        cb(new AppError("Only TXT files are allowed.", 400), false);
     }
 }
 
@@ -79,21 +79,6 @@ export const createDoc = catchAsync(async (req, res, next) => {
         }
     });
 })
-
-export const getPublicDocContent = catchAsync(async (req, res, next) => {
-    const doc = await Document.findOne({
-        where: {
-            id: req.params.id,
-            public: true
-        }
-    })
-
-    if (!doc) {
-        return next(new AppError('Document not found or need to login to access', 404));
-    }
-
-    readDocument(doc, res);
-});
 
 export const getDocContent = catchAsync(async (req, res, next) => {
     const doc = await Document.findByPk(req.params.id);
@@ -146,10 +131,7 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
         return next(new AppError('Document not found', 404));
     }
 
-    const fileName = `${doc.title}.${doc.type}`;
-    const filePath = path.join("./upload/files", fileName);
-    // Delete file from disk
-    fs.unlinkSync(filePath);
+    fs.unlinkSync(doc.content);
 
     // Delete record from database
     await Document.destroy({
@@ -209,7 +191,7 @@ export const getAllPendingDocs = catchAsync(async (req, res, next) => {
     });
 });
 
-export const updateDocument = catchAsync(async (req, res, next) => {
+export const updateDoc = catchAsync(async (req, res, next) => {
     const doc = await Document.findByPk(req.params.id);
 
     if (!doc) {
@@ -221,12 +203,33 @@ export const updateDocument = catchAsync(async (req, res, next) => {
     await doc.update(req.body, { fields: allowedFields });
 
     await AuditLog.create({
-        action: auditLogAction.Updated,
+        action: auditLogAction.Modified,
         documentId: doc.id,
         userId: req.user.id
     });
 
     res.status(200).json({
+        status: 'success',
+        data: {
+            doc
+        }
+    });
+});
+
+export const updateDocContent = catchAsync(async (req, res, next) => {
+    console.log(req.body.content);
+    
+    const doc = await Document.findByPk(req.params.id);
+
+    saveEncryptedFile(req.body.content, doc.content, config.secretKey, config.iv);
+
+    await AuditLog.create({
+        action: auditLogAction.Modified,
+        documentId: doc.id,
+        userId: req.user.id
+    });
+
+    res.status(201).json({
         status: 'success',
         data: {
             doc
