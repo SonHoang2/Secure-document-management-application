@@ -45,6 +45,8 @@ const upload = multer({
 export const uploadDoc = upload.single('file');
 
 export const createDoc = catchAsync(async (req, res, next) => {
+    console.log("hello");
+    
     if (!req.file) {
         return next(new AppError('Please upload a file', 400));
     }
