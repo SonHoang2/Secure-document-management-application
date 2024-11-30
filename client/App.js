@@ -77,8 +77,8 @@ export default function App() {
                         </>
                     ) : (
                         <>
-                            <Stack.Screen name="SignUp" component={SignUp} initialParams={{ setUser }} />
                             <Stack.Screen name="Login" component={Login} initialParams={{ setUser }} />
+                            <Stack.Screen name="SignUp" component={SignUp} initialParams={{ setUser }} />
                         </>
                     )
                 }

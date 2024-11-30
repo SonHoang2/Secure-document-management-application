@@ -7,7 +7,7 @@ import Document from '../models/documentModel.js';
 export const getAllAuditLogs = catchAsync(async (req, res) => {
     const { page, limit, sort, fields } = query(req);
 
-    const auditLogs = await AuditLog.findAll({
+    const auditLogs = await AuditLog.findAndCountAll({
         limit: limit,
         offset: (page - 1) * limit,
         order: sort,
@@ -26,9 +26,9 @@ export const getAllAuditLogs = catchAsync(async (req, res) => {
 
     res.status(200).json({
         status: 'success',
-        results: auditLogs.length,
+        total: auditLogs.count,
         data: {
-            auditLogs
+            auditLogs: auditLogs.rows
         }
     });
 });

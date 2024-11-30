@@ -51,7 +51,12 @@ export const createDoc = catchAsync(async (req, res, next) => {
         return next(new AppError('Please upload a file', 400));
     }
 
-    const ext = req.file.mimetype.split('/')[1];
+    let ext;
+
+    if (req.file.mimetype === 'text/plain') {
+        ext = 'txt';
+    }
+
     const title = `user-${req.user.id}-${Date.now()}`
     const fileName = `${title}.${ext}`;
     const filePath = path.join("./upload/files", fileName);
@@ -157,7 +162,7 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
 export const getAllDocs = catchAsync(async (req, res, next) => {
     const { page, limit, sort, fields } = query(req);
 
-    const docs = await Document.findAll({
+    const docs = await Document.findAndCountAll({
         limit: limit,
         offset: (page - 1) * limit,
         order: sort,
@@ -166,8 +171,9 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
+        total: docs.count,
         data: {
-            docs
+            docs: docs.rows,
         }
     });
 });
