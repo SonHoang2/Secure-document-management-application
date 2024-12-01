@@ -11,6 +11,7 @@ import SignUp from './screens/SignUp';
 import Search from './screens/components/Search';
 import Settings from './screens/Settings';
 import DocumentContent from './screens/DocumentContent';
+import DocumentDetail from './screens/DocumentDetail';
 import { USERS_URL } from './shareVariables';
 
 const Drawer = createDrawerNavigator();
@@ -74,6 +75,7 @@ export default function App() {
                         <>
                             <Stack.Screen name="Root" component={Root} options={{ headerShown: false }} />
                             <Stack.Screen name="documentContent" component={DocumentContent} />
+                            <Stack.Screen name="documentDetail" component={DocumentDetail} />
                         </>
                     ) : (
                         <>

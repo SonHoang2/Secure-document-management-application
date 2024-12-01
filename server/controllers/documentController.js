@@ -61,10 +61,13 @@ export const createDoc = catchAsync(async (req, res, next) => {
     const fileName = `${title}.${ext}`;
     const filePath = path.join("./upload/files", fileName);
 
+    const originalName = req.file.originalname;
+    const nameWithoutExt = path.basename(originalName, path.extname(originalName));
+
     saveEncryptedFile(req.file.buffer, filePath, config.secretKey, config.iv);
 
     const doc = await Document.create({
-        title: req.file.originalname,
+        title: nameWithoutExt,
         type: ext,
         size: req.file.size,
         content: filePath,

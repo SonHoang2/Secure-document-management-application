@@ -14,7 +14,7 @@ const DocumentContent = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            {doc.type === 'plain' && <PlainFile doc={doc} />}
+            {doc.type === 'txt' && <PlainFile doc={doc} />}
         </View>
     );
 };

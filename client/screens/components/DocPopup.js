@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 
-const DocPopup = ({ popup, setPopup, }) => {
+const DocPopup = ({ popup, setPopup, navigation }) => {
 
+    console.log(navigation);
 
     return (
         <Modal
@@ -22,9 +25,13 @@ const DocPopup = ({ popup, setPopup, }) => {
                         e.stopPropagation();
                     }}
                 >
-                    <Text style={styles.modalText}>{popup.doc.title}</Text>
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Details</Text>
+                    <View style={styles.ModalHeader}>
+                        <Ionicons name="document-text" style={styles.ModalHeaderIcon} />
+                        <Text style={styles.ModalHeaderText} numberOfLines={1}>{popup.doc?.title}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.ModalBodyButton} onPress={() => navigation.navigate('documentDetail', { doc: popup.doc })}>
+                        <Feather name="info" style={styles.ModalBodyIcon} />
+                        <Text style={styles.ModalBodyText}>Details</Text>
                     </TouchableOpacity>
                 </View>
             </TouchableOpacity>
@@ -33,15 +40,6 @@ const DocPopup = ({ popup, setPopup, }) => {
 };
 
 const styles = StyleSheet.create({
-    button: {
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 10,
-    },
-    buttonText: {
-        color: '#1b1a1f',
-        fontSize: 16,
-    },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -49,21 +47,48 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         backgroundColor: 'white',
-        padding: 20,
+        paddingVertical: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         alignItems: 'center',
     },
-    modalText: {
+    ModalHeaderText: {
         color: '#1b1a1f',
         fontSize: 18,
-        marginBottom: 20,
         fontWeight: 'bold',
+        width: '80%',
+        paddingLeft: 10,
     },
-    closeButton: {
-        backgroundColor: 'red',
-        padding: 10,
+    ModalHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingTop: 10,
+        padding: 20,
+        borderBlockColor: '#c5c6c6',
+        borderBottomWidth: 1.5,
+        width: '100%',
+        
+    },
+    ModalHeaderIcon: {
+        fontSize: 30,
+        color: '#0d6efd',
+    },
+    ModalBodyButton: {
+        backgroundColor: '#fff',
+        padding: 15,
         borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        paddingLeft: 20,
+    },
+    ModalBodyIcon: {
+        fontSize: 30,
+    },
+    ModalBodyText: {
+        color: '#1b1a1f',
+        fontSize: 18,
+        paddingLeft: 10
     },
 });
 
