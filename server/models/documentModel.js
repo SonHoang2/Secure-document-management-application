@@ -45,12 +45,12 @@ const Document = sequelize.define('document', {
     },
 },
     {
-        timestamps: true,
+        timestamps: false,
     }
 );
 
 Document.associate = (models) => {
-    Document.belongsTo(models.User, { foreignKey: 'createdBy' });
+    Document.belongsTo(models.User, { foreignKey: 'createdBy'});
     Document.hasMany(models.Permission, { foreignKey: 'documentId' });
     Document.hasMany(models.AuditLog, { foreignKey: 'documentId' });
 };

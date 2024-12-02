@@ -12,7 +12,8 @@ import Search from './screens/components/Search';
 import Settings from './screens/Settings';
 import DocumentContent from './screens/DocumentContent';
 import DocumentDetail from './screens/DocumentDetail';
-import { USERS_URL } from './shareVariables';
+import AuditLog from './screens/AuditLog';
+import { USERS_URL, roleName } from './shareVariables';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -23,7 +24,6 @@ export default function App() {
     useEffect(() => {
         const checkAuth = async () => {
             const res = await axios.get(USERS_URL + '/me', { withCredentials: true });
-            console.log(res);
             setUser(res.data.data.user);
         };
 
@@ -49,6 +49,22 @@ export default function App() {
                         ),
                     }}
                 />
+                {
+                    (user.role === roleName.Admin || user.role === roleName.Manager) && (
+                        <Drawer.Screen
+                            name="AuditLog"
+                            component={AuditLog}
+                            options={{
+                                drawerLabel: () => (
+                                    <View style={styles.drawerItem}>
+                                        <Icon name="history" size={20} color="#000" style={styles.icon} />
+                                        <Text style={styles.drawerLabel}>Audit Log</Text>
+                                    </View>
+                                ),
+                            }}
+                        />
+                    )
+                }
                 <Drawer.Screen
                     name="Settings"
                     component={Settings}
@@ -62,7 +78,6 @@ export default function App() {
                     }}
                     initialParams={{ setUser }}
                 />
-
             </Drawer.Navigator>
         );
     }

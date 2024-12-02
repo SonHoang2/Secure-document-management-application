@@ -5,6 +5,7 @@ import stream from 'stream';
 import Document from '../models/documentModel.js';
 import Permission from '../models/permissionModel.js';
 import AuditLog from '../models/auditLogModel.js';
+import User from '../models/userModel.js';
 import { auditLogAction, documentStatus } from '../shareVariable.js';
 import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
@@ -45,8 +46,6 @@ const upload = multer({
 export const uploadDoc = upload.single('file');
 
 export const createDoc = catchAsync(async (req, res, next) => {
-    console.log("hello");
-    
     if (!req.file) {
         return next(new AppError('Please upload a file', 400));
     }
@@ -135,8 +134,6 @@ export const getDocContent = catchAsync(async (req, res, next) => {
 export const deleteDoc = catchAsync(async (req, res, next) => {
     const doc = await Document.findByPk(req.params.id);
 
-    console.log(doc);
-
     if (!doc) {
         return next(new AppError('Document not found', 404));
     }
@@ -170,6 +167,12 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
         offset: (page - 1) * limit,
         order: sort,
         attributes: fields,
+        include: [
+            {
+                model: User,
+                attributes: ['email', 'firstName', 'lastName', 'avatar'],
+            }
+        ]
     });
 
     res.status(200).json({
@@ -209,7 +212,9 @@ export const updateDoc = catchAsync(async (req, res, next) => {
         return next(new AppError('Document not found', 404));
     }
 
-    const allowedFields = ['title', 'type', "size", "content", "public", "status", "createdBy"];
+    const allowedFields = ['title', 'type', "size", "content", "public", "status", "createdBy", "updatedAt"];
+
+    req.body.updatedAt = Date.now();
 
     await doc.update(req.body, { fields: allowedFields });
 
@@ -228,11 +233,13 @@ export const updateDoc = catchAsync(async (req, res, next) => {
 });
 
 export const updateDocContent = catchAsync(async (req, res, next) => {
-    console.log(req.body.content);
-    
     const doc = await Document.findByPk(req.params.id);
 
     saveEncryptedFile(req.body.content, doc.content, config.secretKey, config.iv);
+
+    await doc.update(
+        { updatedAt: Date.now() },
+    );
 
     await AuditLog.create({
         action: auditLogAction.Modified,
@@ -249,13 +256,11 @@ export const updateDocContent = catchAsync(async (req, res, next) => {
 });
 
 export const getRecentDocs = catchAsync(async (req, res, next) => {
-    const { page, limit, sort, fields } = query(req);
+    const { page, limit } = query(req);
 
     const docs = await Document.findAll({
         limit: limit,
         offset: (page - 1) * limit,
-        order: sort,
-        attributes: fields,
         where: {
             createdBy: req.user.id
         },
@@ -263,9 +268,15 @@ export const getRecentDocs = catchAsync(async (req, res, next) => {
             {
                 model: AuditLog,
                 where: {
-                    userId: req.user.id
+                    userId: req.user.id,
                 },
-                order: [['createdAt', 'DESC']],
+                order: [['timestamp', 'DESC']],
+                attributes: ['timestamp', 'action'],
+                limit: 1,
+            },
+            {
+                model: User,
+                attributes: ['email'],
             }
         ]
     });

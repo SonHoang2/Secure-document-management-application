@@ -11,7 +11,6 @@ import DocPopup from './components/DocPopup';
 const Home = ({ navigation }) => {
     const [docs, setDocs] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
-    // set current document to be displayed in the modal
     const [popup, setPopup] = useState({
         visible: false,
         doc: null,
@@ -38,14 +37,9 @@ const Home = ({ navigation }) => {
             const formData = new FormData();
             formData.append('file', {
                 uri: doc.uri,
-                type: doc.type,
+                type: doc.mimeType,
                 name: doc.name
             });
-
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
-            }
-
 
             const res = await axios.post(DOCS_URL + '/upload', formData, {
                 headers: {
@@ -53,7 +47,7 @@ const Home = ({ navigation }) => {
                 }
             });
 
-            console.log(res.data);
+            console.log(res);
 
 
         } catch (error) {
@@ -72,7 +66,7 @@ const Home = ({ navigation }) => {
                 <Ionicons name="document-text" style={styles.docIcon} />
                 <View style={styles.cardBody}>
                     <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                    <Text>{item.createdAt}</Text>
+                    <Text>You { item.auditLogs[0].action } {item.auditLogs[0].timestamp}</Text>
                 </View>
             </View>
             <TouchableOpacity onPress={() => setPopup({
@@ -109,7 +103,10 @@ const Home = ({ navigation }) => {
                 <AntDesign name="upload" size={24} color="#000" style={styles.uploadIcon} />
                 <Text style={styles.uploadText}>Upload</Text>
             </TouchableOpacity>
-            <DocPopup popup={popup} setPopup={setPopup}/>
+            {
+                popup.visible &&
+                <DocPopup setPopup={setPopup} navigation={navigation} doc={popup.doc} />
+            }
         </View>
     );
 };

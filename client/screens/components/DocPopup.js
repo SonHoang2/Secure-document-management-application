@@ -3,15 +3,13 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 
-const DocPopup = ({ popup, setPopup, navigation }) => {
-
-    console.log(navigation);
+const DocPopup = ({ setPopup, navigation, doc }) => {
+    
 
     return (
         <Modal
             animationType="slide"
             transparent={true}
-            visible={popup.visible}
             onRequestClose={() => setPopup(prev => ({ ...prev, visible: false }))}
         >
             <TouchableOpacity
@@ -27,9 +25,16 @@ const DocPopup = ({ popup, setPopup, navigation }) => {
                 >
                     <View style={styles.ModalHeader}>
                         <Ionicons name="document-text" style={styles.ModalHeaderIcon} />
-                        <Text style={styles.ModalHeaderText} numberOfLines={1}>{popup.doc?.title}</Text>
+                        <Text style={styles.ModalHeaderText} numberOfLines={1}>{doc?.title}</Text>
                     </View>
-                    <TouchableOpacity style={styles.ModalBodyButton} onPress={() => navigation.navigate('documentDetail', { doc: popup.doc })}>
+                    <TouchableOpacity style={styles.ModalBodyButton}
+                        onPress={() => navigation.navigate('documentDetail',
+                            {
+                                doc: doc,
+                                screen: 'DocumentDetail'
+                            }
+                        )}
+                    >
                         <Feather name="info" style={styles.ModalBodyIcon} />
                         <Text style={styles.ModalBodyText}>Details</Text>
                     </TouchableOpacity>
@@ -67,7 +72,7 @@ const styles = StyleSheet.create({
         borderBlockColor: '#c5c6c6',
         borderBottomWidth: 1.5,
         width: '100%',
-        
+
     },
     ModalHeaderIcon: {
         fontSize: 30,
