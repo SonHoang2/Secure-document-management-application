@@ -5,9 +5,10 @@ import { AUDITLOG } from '../shareVariables';
 
 const AuditLog = ({ navigation }) => {
     const [auditLogs, setAuditLogs] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     const getAuditLogs = async () => {
-        const res = await axios.get(AUDITLOG + '/', { withCredentials: true });
+        const res = await axios.get(AUDITLOG + '/?sort=-timestamp', { withCredentials: true });
         console.log(res.data.data.auditLogs);
         setAuditLogs(res.data.data.auditLogs);
     };
@@ -33,12 +34,22 @@ const AuditLog = ({ navigation }) => {
         </View>
     );
 
+    const onRefresh = () => {
+        setRefreshing(true);
+        setTimeout(() => {
+            getAuditLogs();
+            setRefreshing(false);
+        }, 2000);
+    };
+
     return (
         <View style={styles.container}>
             <FlatList
                 data={auditLogs}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderLogItem}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
             />
             
         </View>

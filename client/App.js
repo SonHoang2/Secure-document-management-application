@@ -78,6 +78,18 @@ export default function App() {
                     }}
                     initialParams={{ setUser }}
                 />
+                <Drawer.Screen
+                    name="User"
+                    component={Home}
+                    options={{
+                        drawerLabel: () => (
+                            <View style={styles.drawerItem}>
+                                <Icon name="access-time" size={20} color="#000" style={styles.icon} />
+                                <Text style={styles.drawerLabel}>User</Text>
+                            </View>
+                        ),
+                    }}
+                />
             </Drawer.Navigator>
         );
     }
