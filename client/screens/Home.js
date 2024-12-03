@@ -4,9 +4,11 @@ import { useState } from 'react';
 import axios from 'axios';
 import { DOCS_URL } from '../shareVariables';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DocPopup from './components/DocPopup';
+
 
 const Home = ({ navigation }) => {
     const [docs, setDocs] = useState([]);
@@ -31,32 +33,46 @@ const Home = ({ navigation }) => {
 
     const Upload = async () => {
         try {
-            const docs = await DocumentPicker.getDocumentAsync();
-            const doc = docs.assets[0];
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "text/*",
+                copyToCacheDirectory: false,
+            });
+
+            const doc = result.assets[0];
+
+            let uri = doc.uri;
+
+            if (!result.canceled) {
+                uri = FileSystem.documentDirectory + doc.name;
+                await FileSystem.copyAsync({
+                    from: doc.uri,
+                    to: uri
+                })
+            }
 
             const formData = new FormData();
+
             formData.append('file', {
-                uri: doc.uri,
+                uri: uri,
                 type: doc.mimeType,
-                name: doc.name
+                name: doc.name,
+                size: doc.size,
             });
 
             const res = await axios.post(DOCS_URL + '/upload', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                    'Content-Type': 'multipart/form-data',
+                },
+                transformRequest: formData => formData,
+                timeout: 5000,
             });
 
             console.log(res);
 
-
+            alert('File uploaded successfully');
         } catch (error) {
-            if (DocumentPicker.isCancel(err)) {
-                console.log('User canceled document picker');
-            } else {
-                console.error('Error uploading file:', err);
-                Alert.alert('Error', 'Failed to upload file');
-            }
+            console.log(error);
+            Alert.alert('Error', 'Failed to upload file');
         }
     }
 
@@ -66,7 +82,16 @@ const Home = ({ navigation }) => {
                 <Ionicons name="document-text" style={styles.docIcon} />
                 <View style={styles.cardBody}>
                     <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                    <Text>You { item.auditLogs[0].action } {item.auditLogs[0].timestamp}</Text>
+                    <View style={styles.cardBodyText}>
+                        <Text>You {item.auditLogs[0].action} at </Text>
+                        <Text>{
+                            new Intl.DateTimeFormat('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                            }).format(new Date(item.auditLogs[0].timestamp))
+                        }</Text>
+                    </View>
                 </View>
             </View>
             <TouchableOpacity onPress={() => setPopup({
@@ -138,6 +163,10 @@ const styles = StyleSheet.create({
     cardBody: {
         width: '80%',
         paddingLeft: 10
+    },
+    cardBodyText: {
+        flexDirection: 'row',
+        alignItems: 'flex-start'
     },
     cardLeft: {
         flexDirection: 'row',

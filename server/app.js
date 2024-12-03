@@ -2,7 +2,6 @@ import express from 'express'
 import documentRoutes from './routes/documentRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import auditLogRoutes from './routes/auditLogRoutes.js'
-import AppError from './utils/AppError.js'
 import globalErrorHandler from './controllers/errorController.js'
 import cors from 'cors'
 
