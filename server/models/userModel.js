@@ -45,7 +45,7 @@ const User = sequelize.define('user', {
     },
     avatar: {
         type: DataTypes.STRING,
-        allowNull: true
+        defaultValue: 'user-avatar-default.jpg'
     },
     googleAccount: {
         type: DataTypes.BOOLEAN,

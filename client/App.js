@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image  } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,7 +13,8 @@ import Settings from './screens/Settings';
 import DocumentContent from './screens/DocumentContent';
 import DocumentDetail from './screens/DocumentDetail';
 import AuditLog from './screens/AuditLog';
-import { USERS_URL, roleName } from './shareVariables';
+import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
+import Profile from './screens/Profile';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -36,6 +37,22 @@ export default function App() {
     function Root() {
         return (
             <Drawer.Navigator>
+                <Drawer.Screen
+                    name="Profile"
+                    component={Profile}
+                    options={{
+                        drawerLabel: () => (
+                            <View style={styles.drawerItem}>
+                                <Image source={{ uri: IMAGES_URL + "/" + user.avatar }} style={{ width: 30, height: 30, borderRadius: 15, marginRight: 15 }} />
+                                <View style={styles.profile}>
+                                    <Text style={styles.profileText}>{user.firstName} {user.lastName}</Text>
+                                    <Text style={styles.profileTextSmall}>View profile</Text>
+                                </View>
+                            </View>
+                        ),
+                    }}
+                    initialParams={{ user }}
+                />
                 <Drawer.Screen
                     name="Recent"
                     component={Home}
@@ -77,18 +94,6 @@ export default function App() {
                         ),
                     }}
                     initialParams={{ setUser }}
-                />
-                <Drawer.Screen
-                    name="User"
-                    component={Home}
-                    options={{
-                        drawerLabel: () => (
-                            <View style={styles.drawerItem}>
-                                <Icon name="access-time" size={20} color="#000" style={styles.icon} />
-                                <Text style={styles.drawerLabel}>User</Text>
-                            </View>
-                        ),
-                    }}
                 />
             </Drawer.Navigator>
         );
@@ -132,6 +137,17 @@ const styles = StyleSheet.create({
     },
     drawerLabel: {
         fontSize: 16,
+        color: '#000',
+    },
+    profile: {
+        flexDirection: 'column',
+    },
+    profileText: {
+        fontSize: 16,
+        color: '#000',
+    },
+    profileTextSmall: {
+        fontSize: 14,
         color: '#000',
     },
 });

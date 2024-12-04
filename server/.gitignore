@@ -133,3 +133,4 @@ dist
 
 /upload/files/*
 /upload/images/*
+!/images/user-avatar-default.jpg

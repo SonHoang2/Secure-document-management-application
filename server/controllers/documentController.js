@@ -11,7 +11,6 @@ import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
 import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
-import { __dirname } from '../shareVariable.js';
 import { query } from '../utils/filter.js';
 
 
