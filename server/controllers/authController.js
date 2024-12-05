@@ -45,7 +45,6 @@ export const protect = catchAsync(async (req, res, next) => {
 
 export const restrictTo = (...roles) => {
     return (req, res, next) => {
-        console.log(req.user.role);
         // roles ['admin, ...]  .role = 'user'
         if (!roles.includes(req.user.role)) {
             return next(
@@ -111,7 +110,7 @@ export const login = catchAsync(
             next(new AppError('Please provide email and password!', 400));
         }
 
-        const user = await User.scope('withPassword').findOne({ where: { email: email } });
+        const user = await User.scope('withPassword').findOne({ where: { email: email, active: true } });
 
         if (!user || !user.validPassword(password)) {
             next(new AppError('Incorrect email or password', 401));

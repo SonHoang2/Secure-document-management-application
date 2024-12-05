@@ -7,6 +7,14 @@ const AuditLog = ({ navigation }) => {
     const [auditLogs, setAuditLogs] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
 
+    const onRefresh = () => {
+        setRefreshing(true);
+        setTimeout(() => {
+            getAuditLogs();
+            setRefreshing(false);
+        }, 2000);
+    };
+
     const getAuditLogs = async () => {
         const res = await axios.get(AUDITLOG + '/?sort=-timestamp', { withCredentials: true });
         console.log(res.data.data.auditLogs);
@@ -33,14 +41,6 @@ const AuditLog = ({ navigation }) => {
             </Text>
         </View>
     );
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        setTimeout(() => {
-            getAuditLogs();
-            setRefreshing(false);
-        }, 2000);
-    };
 
     return (
         <View style={styles.container}>

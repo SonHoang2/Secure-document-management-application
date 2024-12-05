@@ -12,7 +12,23 @@ const Settings = ({ route }) => {
             alert("You have been signed out.");
         } catch (error) {
             console.log(error);
+
+            if (error.response) {
+                Alert.alert('Error', error.response.data.message);
+            } else {
+                Alert.alert('Error', error.message);
+            }
+        }
+        setUser(null);
+    }
+
+    const closeAccount = async () => {
+        try {
+            const user = await axios.delete(USERS_URL + '/me');
+            console.log(user);
             
+            alert("Your account has been closed.");
+        } catch (error) {
             if (error.response) {
                 Alert.alert('Error', error.response.data.message);
             } else {
@@ -28,7 +44,7 @@ const Settings = ({ route }) => {
             "Are you sure you want to close your account? This action is irreversible.",
             [
                 { text: "Cancel", style: "cancel" },
-                { text: "Yes, Close Account", onPress: () => console.log("Account closed") },
+                { text: "Yes, Close Account", onPress: closeAccount },
             ]
         );
     };

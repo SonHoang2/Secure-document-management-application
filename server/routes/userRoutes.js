@@ -10,6 +10,8 @@ router.post('/login', authController.login);
 router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);
+router.delete('/me', userController.getMe, userController.deleteUser);
+
 router.get('/logout', authController.logout);
 
 router.use(authController.restrictTo('admin'));

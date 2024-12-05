@@ -4,7 +4,6 @@ import { IMAGES_URL } from '../shareVariables';
 
 const Profile = ({ navigation, route }) => {
     const { user } = route.params
-    console.log(route.params.user);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -93,23 +92,23 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     textBold: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '700',
         color: 'black',
-        paddingRight: 10
+        paddingRight: 5
     },
     text: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '400',
         color: 'black',
     },
     statusSuccess: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '400',
         color: "green"
     },
     statusFail: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '400',
         color: "red"
     },

@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
 import Home from './screens/Home';
 import Login from './screens/Login';
@@ -13,8 +14,10 @@ import Settings from './screens/Settings';
 import DocumentContent from './screens/DocumentContent';
 import DocumentDetail from './screens/DocumentDetail';
 import AuditLog from './screens/AuditLog';
-import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
 import Profile from './screens/Profile';
+import Users from './screens/Users';
+import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
+import PendingDocuments from './screens/PendingDocuments';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -43,7 +46,7 @@ export default function App() {
                     options={{
                         drawerLabel: () => (
                             <View style={styles.drawerItem}>
-                                <Image source={{ uri: IMAGES_URL + "/" + user.avatar }} style={{ width: 30, height: 30, borderRadius: 15, marginRight: 15 }} />
+                                <Image source={{ uri: IMAGES_URL + "/" + user.avatar }} style={styles.avatar} />
                                 <View style={styles.profile}>
                                     <Text style={styles.profileText}>{user.firstName} {user.lastName}</Text>
                                     <Text style={styles.profileTextSmall}>View profile</Text>
@@ -67,7 +70,7 @@ export default function App() {
                     }}
                 />
                 {
-                    (user.role === roleName.Admin || user.role === roleName.Manager) && (
+                    user.role === roleName.Admin && (
                         <Drawer.Screen
                             name="AuditLog"
                             component={AuditLog}
@@ -76,6 +79,39 @@ export default function App() {
                                     <View style={styles.drawerItem}>
                                         <Icon name="history" size={20} color="#000" style={styles.icon} />
                                         <Text style={styles.drawerLabel}>Audit Log</Text>
+                                    </View>
+                                ),
+                            }}
+                        />
+                    )
+                }
+                {
+                    user.role === roleName.Admin && (
+                        <Drawer.Screen
+                            name="Users"
+                            component={Users}
+                            options={{
+                                drawerLabel: () => (
+                                    <View style={styles.drawerItem}>
+                                        <Icon name="people" size={20} color="#000" style={styles.icon} />
+                                        <Text style={styles.drawerLabel}>Users</Text>
+                                    </View>
+                                ),
+                            }}
+                            initialParams={{ users: true }}
+                        />
+                    )
+                }
+                {
+                    user.role === roleName.Manager && (
+                        <Drawer.Screen
+                            name="PendingDocuments"
+                            component={PendingDocuments}
+                            options={{
+                                drawerLabel: () => (
+                                    <View style={styles.drawerItem}>
+                                        <Ionicons name="hourglass-outline" size={20} color="#000" style={styles.icon} />
+                                        <Text style={styles.drawerLabel}>Pending Documents</Text>
                                     </View>
                                 ),
                             }}
@@ -149,5 +185,11 @@ const styles = StyleSheet.create({
     profileTextSmall: {
         fontSize: 14,
         color: '#000',
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 15,
     },
 });
