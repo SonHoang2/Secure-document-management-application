@@ -168,8 +168,17 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
         attributes: fields,
         include: [
             {
+                model: AuditLog,
+                where: {
+                    userId: req.user.id,
+                },
+                order: [['timestamp', 'DESC']],
+                attributes: ['timestamp', 'action'],
+                limit: 1,
+            },
+            {
                 model: User,
-                attributes: ['email', 'firstName', 'lastName', 'avatar'],
+                attributes: ['email'],
             }
         ]
     });
@@ -194,6 +203,21 @@ export const getAllPendingDocs = catchAsync(async (req, res, next) => {
         offset: (page - 1) * limit,
         order: sort,
         attributes: fields,
+        include: [
+            {
+                model: AuditLog,
+                where: {
+                    userId: req.user.id,
+                },
+                order: [['timestamp', 'DESC']],
+                attributes: ['timestamp', 'action'],
+                limit: 1,
+            },
+            {
+                model: User,
+                attributes: ['email'],
+            }
+        ]
     });
 
     res.status(200).json({
