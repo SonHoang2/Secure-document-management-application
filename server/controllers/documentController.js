@@ -6,13 +6,14 @@ import Document from '../models/documentModel.js';
 import Permission from '../models/permissionModel.js';
 import AuditLog from '../models/auditLogModel.js';
 import User from '../models/userModel.js';
-import { auditLogAction, documentStatus } from '../shareVariable.js';
+import { auditLogAction, documentStatus, roleName } from '../shareVariable.js';
 import AppError from '../utils/AppError.js';
 import catchAsync from '../utils/catchAsync.js';
 import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
 import { query } from '../utils/filter.js';
-
+import sequelize from '../db.js';
+import { Op } from 'sequelize';
 
 const readDocument = (doc, res) => {
     const buffer = getEncryptedFile(doc.content, config.secretKey, config.iv);
@@ -281,7 +282,41 @@ export const updateDocContent = catchAsync(async (req, res, next) => {
 export const getRecentDocs = catchAsync(async (req, res, next) => {
     const { page, limit } = query(req);
 
-    const docs = await Document.findAll({
+    const docs = await AuditLog.findAndCountAll({
+        where: {
+            userId: req.user.id,
+            action: auditLogAction.Read
+        },
+        order: [['timestamp', 'DESC']],
+        limit: limit,
+        offset: (page - 1) * limit,
+        include: [
+            {
+                model: Document,
+                attributes: ['title', 'type', 'size', 'content', 'public', 'status', 'createdBy', 'updatedAt'],
+                include: [
+                    {
+                        model: User,
+                        attributes: ['email'],
+                    }
+                ]
+            }
+        ]
+    });
+
+    res.status(200).json({
+        status: 'success',
+        total: docs.count,
+        data: {
+            docs: docs.rows
+        }
+    });
+});
+
+export const getMyDocs = catchAsync(async (req, res, next) => {
+    const { page, limit } = query(req);
+
+    const docs = await Document.findAndCountAll({
         limit: limit,
         offset: (page - 1) * limit,
         where: {
@@ -306,8 +341,47 @@ export const getRecentDocs = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
+        total: docs.count,
         data: {
-            docs
+            docs: docs.rows
+        }
+    });
+});
+
+
+
+export const searchDocs = catchAsync(async (req, res, next) => {
+    const { name } = req.params;
+    const { role } = req.user;
+
+    let docs;
+    if (role === roleName.Admin || role === roleName.Manager) {
+        docs = await Document.findAndCountAll({
+            where: {
+                title: {
+                    [Op.iLike]: `%${name}%`
+                }
+            }
+        });
+    }
+    else {
+        docs = await Document.findAndCountAll({
+            where: {
+                title: {
+                    [Op.iLike]: `%${name}%`
+                },
+                status: documentStatus.Approved,
+                public: true
+            }
+        });
+    }
+    
+
+    res.status(200).json({
+        status: 'success',
+        total: docs.count,
+        data: {
+            docs: docs.rows
         }
     });
 });

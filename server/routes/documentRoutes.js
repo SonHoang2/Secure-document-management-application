@@ -6,7 +6,11 @@ const router = Router();
 
 router.use(authController.protect);
 
+router.get('/search/:name', documentController.searchDocs);
+
 router.get('/recent', documentController.getRecentDocs);
+
+router.get('/me', documentController.getMyDocs);
 
 router.route("/:id/content")
     .get(documentController.getDocContent)
