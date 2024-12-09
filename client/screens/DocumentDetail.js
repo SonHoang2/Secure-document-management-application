@@ -17,7 +17,7 @@ const DocumentDetail = ({ route, navigation }) => {
             <Text style={styles.label}>Updated At: <Text style={styles.value}>{doc.updatedAt}</Text></Text>
             <Text style={styles.label}>Public: <Text style={styles.value}>{doc.public ? 'Yes' : 'No'}</Text></Text>
             <Text style={styles.label}>Status: <Text style={styles.value}>{doc.status}</Text></Text>
-            <Text style={styles.label}>Created By: <Text style={styles.value}>{doc.user.email}</Text></Text>
+            <Text style={styles.label}>Created By: <Text style={styles.value}>{doc.user?.email || doc.email}</Text></Text>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Root', { screen: 'Recent' })}>
                 <Text style={styles.buttonText}>Return Home</Text>
             </TouchableOpacity>

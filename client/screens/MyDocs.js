@@ -10,7 +10,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DocPopup from './components/DocPopup';
 
 
-const Home = ({ navigation }) => {
+const MyDocs = ({ navigation }) => {
     const [docs, setDocs] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [popup, setPopup] = useState({
@@ -20,7 +20,7 @@ const Home = ({ navigation }) => {
 
     const getDocs = async () => {
         try {
-            const res = await axios.get(DOCS_URL + "/recent");
+            const res = await axios.get(DOCS_URL + "/me");
             setDocs(res.data.data.docs);
         } catch (error) {
             if (error.response) {
@@ -76,32 +76,37 @@ const Home = ({ navigation }) => {
         }
     }
 
-    const renderDocument = ({ item }) => (
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
-            <View style={styles.cardLeft}>
-                <Ionicons name="document-text" style={styles.docIcon} />
-                <View style={styles.cardBody}>
-                    <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                    <View style={styles.cardBodyText}>
-                        <Text>You {item.auditLogs[0].action} at </Text>
-                        <Text>{
-                            new Intl.DateTimeFormat('en-US', {
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                            }).format(new Date(item.auditLogs[0].timestamp))
-                        }</Text>
+
+    const renderDocument = ({ item }) => {
+        const {timestamp, action} = item.auditLogs[0];
+        
+        return (
+            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
+                <View style={styles.cardLeft}>
+                    <Ionicons name="document-text" style={styles.docIcon} />
+                    <View style={styles.cardBody}>
+                        <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                        <View style={styles.cardBodyText}>
+                            <Text>You {action} at </Text>
+                            <Text>{
+                                new Intl.DateTimeFormat('en-US', {
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                }).format(new Date(timestamp))
+                            }</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
-            <TouchableOpacity onPress={() => setPopup({
-                visible: true,
-                doc: item
-            })}>
-                <Ionicons name="ellipsis-vertical" style={styles.ellipsisIcon} />
+                <TouchableOpacity onPress={() => setPopup({
+                    visible: true,
+                    doc: item
+                })}>
+                    <Ionicons name="ellipsis-vertical" style={styles.ellipsisIcon} />
+                </TouchableOpacity>
             </TouchableOpacity>
-        </TouchableOpacity>
-    );
+        )
+    };
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -205,4 +210,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Home;
+export default MyDocs;

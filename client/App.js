@@ -1,23 +1,24 @@
 import axios from 'axios';
-import { StyleSheet, Text, View, Image  } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
-import Home from './screens/Home';
+import Recent from './screens/Recent';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
-import Search from './screens/components/Search';
 import Settings from './screens/Settings';
 import DocumentContent from './screens/DocumentContent';
 import DocumentDetail from './screens/DocumentDetail';
 import AuditLog from './screens/AuditLog';
 import Profile from './screens/Profile';
 import Users from './screens/Users';
-import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
+import MyDocs from './screens/MyDocs';
 import PendingDocuments from './screens/PendingDocuments';
+import Search from './screens/Search';
+import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -39,7 +40,7 @@ export default function App() {
 
     function Root() {
         return (
-            <Drawer.Navigator>
+            <Drawer.Navigator initialRouteName='Recent'>
                 <Drawer.Screen
                     name="Profile"
                     component={Profile}
@@ -58,13 +59,29 @@ export default function App() {
                 />
                 <Drawer.Screen
                     name="Recent"
-                    component={Home}
-                    options={{
-                        headerRight: () => <Search />,
+                    component={Recent}
+                    options={ ({ navigation }) => ({
+                        headerRight: () => (
+                            <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+                                <Icon name="search" size={25} color="#000" style={{ marginRight: 15 }} />
+                            </TouchableOpacity>
+                        ),
                         drawerLabel: () => (
                             <View style={styles.drawerItem}>
                                 <Icon name="access-time" size={20} color="#000" style={styles.icon} />
                                 <Text style={styles.drawerLabel}>Recent</Text>
+                            </View>
+                        ),
+                    })}
+                />
+                <Drawer.Screen
+                    name="MyDocuments"
+                    component={MyDocs}
+                    options={{
+                        drawerLabel: () => (
+                            <View style={styles.drawerItem}>
+                                <Icon name="folder" size={20} color="#000" style={styles.icon} />
+                                <Text style={styles.drawerLabel}>My Documents</Text>
                             </View>
                         ),
                     }}
@@ -144,6 +161,7 @@ export default function App() {
                             <Stack.Screen name="Root" component={Root} options={{ headerShown: false }} />
                             <Stack.Screen name="documentContent" component={DocumentContent} />
                             <Stack.Screen name="documentDetail" component={DocumentDetail} />
+                            <Stack.Screen name="Search" component={Search} options={{ headerShown: false }} />
                         </>
                     ) : (
                         <>

@@ -4,8 +4,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 
 const DocPopup = ({ setPopup, navigation, doc }) => {
-    
-
     return (
         <Modal
             animationType="slide"

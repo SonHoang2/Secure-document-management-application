@@ -10,8 +10,6 @@ const DocumentContent = ({ route, navigation }) => {
         navigation.setOptions({ title: doc.title });
     }, [navigation, doc.title]);
 
-    console.log(doc.type);
-
     return (
         <View style={styles.container}>
             {doc.type === 'txt' && <PlainFile doc={doc} />}

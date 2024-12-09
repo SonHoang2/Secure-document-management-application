@@ -282,33 +282,35 @@ export const updateDocContent = catchAsync(async (req, res, next) => {
 export const getRecentDocs = catchAsync(async (req, res, next) => {
     const { page, limit } = query(req);
 
-    const docs = await AuditLog.findAndCountAll({
-        where: {
+    const docs = await sequelize.query(`
+        SELECT DISTINCT ON ("documentId") 
+	        "auditLogs"."documentId" as "id",
+	        "auditLogs".action, "auditLogs".timestamp,
+	        documents."title", documents.type, documents.size, 
+            documents.content, documents.public, documents.status, 
+            documents."createdAt", documents."createdBy", documents."updatedAt",
+            users.email
+        FROM "auditLogs"
+        LEFT JOIN documents ON "auditLogs"."documentId" = documents.id
+        LEFT JOIN users ON documents."createdBy" = users.id
+        WHERE "auditLogs"."userId" = :userId AND "auditLogs".action = :action
+        ORDER BY "auditLogs"."documentId", "auditLogs".timestamp DESC
+        LIMIT :limit OFFSET :offset;
+    `, {
+        replacements: {
             userId: req.user.id,
-            action: auditLogAction.Read
+            action: auditLogAction.Read,
+            limit: limit,
+            offset: (page - 1) * limit,
         },
-        order: [['timestamp', 'DESC']],
-        limit: limit,
-        offset: (page - 1) * limit,
-        include: [
-            {
-                model: Document,
-                attributes: ['title', 'type', 'size', 'content', 'public', 'status', 'createdBy', 'updatedAt'],
-                include: [
-                    {
-                        model: User,
-                        attributes: ['email'],
-                    }
-                ]
-            }
-        ]
+        type: sequelize.QueryTypes.SELECT,
     });
 
     res.status(200).json({
         status: 'success',
         total: docs.count,
         data: {
-            docs: docs.rows
+            docs
         }
     });
 });
@@ -375,7 +377,7 @@ export const searchDocs = catchAsync(async (req, res, next) => {
             }
         });
     }
-    
+
 
     res.status(200).json({
         status: 'success',
