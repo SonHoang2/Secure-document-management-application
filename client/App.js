@@ -18,6 +18,7 @@ import Users from './screens/Users';
 import MyDocs from './screens/MyDocs';
 import PendingDocuments from './screens/PendingDocuments';
 import Search from './screens/Search';
+import CreateDocument from './screens/CreateDocument';
 import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
 
 const Drawer = createDrawerNavigator();
@@ -162,6 +163,7 @@ export default function App() {
                             <Stack.Screen name="documentContent" component={DocumentContent} />
                             <Stack.Screen name="documentDetail" component={DocumentDetail} />
                             <Stack.Screen name="Search" component={Search} options={{ headerShown: false }} />
+                            <Stack.Screen name="CreateDocument" component={CreateDocument} />
                         </>
                     ) : (
                         <>

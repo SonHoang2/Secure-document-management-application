@@ -7,6 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DocPopup from './components/DocPopup';
 
 
@@ -76,7 +77,6 @@ const Recent = ({ navigation }) => {
         }
     }
 
-
     const renderDocument = ({ item }) => {
         return (
             <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
@@ -127,10 +127,21 @@ const Recent = ({ navigation }) => {
                 refreshing={refreshing}
                 onRefresh={onRefresh}
             />
-            <TouchableOpacity onPress={Upload} style={styles.upload}>
-                <AntDesign name="upload" size={24} color="#000" style={styles.uploadIcon} />
-                <Text style={styles.uploadText}>Upload</Text>
-            </TouchableOpacity>
+            <View style={styles.bottomItemContainer}>
+                <TouchableOpacity
+                    onPress={
+                        () => navigation.navigate('CreateDocument')
+                    }
+                    style={styles.bottomItemButton}
+                >
+                    <MaterialIcons name="create" size={24} color="#000" style={styles.bottomItemIcon} />
+                    <Text style={styles.bottomItemText}>Create</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={Upload} style={styles.bottomItemButton}>
+                    <AntDesign name="upload" size={24} color="#000" style={styles.bottomItemIcon} />
+                    <Text style={styles.bottomItemText}>Upload</Text>
+                </TouchableOpacity>
+            </View>
             {
                 popup.visible &&
                 <DocPopup setPopup={setPopup} navigation={navigation} doc={popup.doc} />
@@ -180,22 +191,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         flexWrap: 'wrap',
     },
-    upload: {
-        backgroundColor: '#0d6efd',
-        padding: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 16,
-        flexDirection: 'row',
-    },
-    uploadIcon: {
+    bottomItemIcon: {
         color: '#fff',
         marginRight: 8,
-    },
-    uploadText: {
-        color: '#fff',
-        fontSize: 16,
     },
     docIcon: {
         fontSize: 30,
@@ -206,6 +204,26 @@ const styles = StyleSheet.create({
         fontSize: 24,
         padding: 8,
     },
+    bottomItemContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    bottomItemButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#0d6efd',
+        padding: 12,
+        margin: 8,
+        borderRadius: 8,
+        marginBottom: 16,
+        flex: 1,
+    },
+    bottomItemText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    }
 });
 
 export default Recent;

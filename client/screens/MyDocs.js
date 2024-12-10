@@ -31,52 +31,6 @@ const MyDocs = ({ navigation }) => {
         }
     }
 
-    const Upload = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: "text/*",
-                copyToCacheDirectory: false,
-            });
-
-            const doc = result.assets[0];
-
-            let uri = doc.uri;
-
-            if (!result.canceled) {
-                uri = FileSystem.documentDirectory + doc.name;
-                await FileSystem.copyAsync({
-                    from: doc.uri,
-                    to: uri
-                })
-            }
-
-            const formData = new FormData();
-
-            formData.append('file', {
-                uri: uri,
-                type: doc.mimeType,
-                name: doc.name,
-                size: doc.size,
-            });
-
-            const res = await axios.post(DOCS_URL + '/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                transformRequest: formData => formData,
-                timeout: 5000,
-            });
-
-            console.log(res);
-
-            alert('File uploaded successfully');
-        } catch (error) {
-            console.log(error);
-            Alert.alert('Error', 'Failed to upload file');
-        }
-    }
-
-
     const renderDocument = ({ item }) => {
         const {timestamp, action} = item.auditLogs[0];
         
@@ -129,10 +83,6 @@ const MyDocs = ({ navigation }) => {
                 refreshing={refreshing}
                 onRefresh={onRefresh}
             />
-            <TouchableOpacity onPress={Upload} style={styles.upload}>
-                <AntDesign name="upload" size={24} color="#000" style={styles.uploadIcon} />
-                <Text style={styles.uploadText}>Upload</Text>
-            </TouchableOpacity>
             {
                 popup.visible &&
                 <DocPopup setPopup={setPopup} navigation={navigation} doc={popup.doc} />

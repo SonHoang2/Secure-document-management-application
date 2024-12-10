@@ -45,7 +45,7 @@ const upload = multer({
 
 export const uploadDoc = upload.single('file');
 
-export const createDoc = catchAsync(async (req, res, next) => {
+export const createDocByUpload = catchAsync(async (req, res, next) => {
     if (!req.file) {
         return next(new AppError('Please upload a file', 400));
     }
@@ -88,6 +88,48 @@ export const createDoc = catchAsync(async (req, res, next) => {
         }
     });
 })
+
+export const createDoc = catchAsync(async (req, res, next) => {
+    if (!req.body.title || !req.body.content) {
+        return next(new AppError('Please fill title and content', 400));
+    }
+
+    let ext = 'txt';
+
+    const content = JSON.stringify(req.body.content);
+    const sizeInBytes = Buffer.byteLength(content, 'utf8');
+
+    const title = `user-${req.user.id}-${Date.now()}`
+    const fileName = `${title}.${ext}`;
+    const filePath = path.join("./upload/files", fileName);
+
+    console.log(req.body.content);
+    
+    saveEncryptedFile(req.body.content, filePath, config.secretKey, config.iv);
+
+    const doc = await Document.create({
+        title: req.body.title,
+        type: ext,
+        size: sizeInBytes,
+        content: filePath,
+        public: false,
+        status: documentStatus.Pending,
+        createdBy: req.user.id,
+    })
+
+    await AuditLog.create({
+        action: auditLogAction.Created,
+        documentId: doc.id,
+        userId: req.user.id
+    });
+
+    res.status(201).json({
+        status: 'success',
+        data: {
+            doc
+        }
+    });
+});
 
 export const getDocContent = catchAsync(async (req, res, next) => {
     const doc = await Document.findByPk(req.params.id);
@@ -140,17 +182,17 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
 
     fs.unlinkSync(doc.content);
 
+    await AuditLog.create({
+        action: auditLogAction.Deleted,
+        documentId: doc.id,
+        userId: req.user.id
+    });
+
     // Delete record from database
     await Document.destroy({
         where: {
             id: req.params.id
         }
-    });
-
-    await AuditLog.create({
-        action: auditLogAction.Deleted,
-        documentId: doc.id,
-        userId: req.user.id
     });
 
     res.status(204).json({

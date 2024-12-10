@@ -6,6 +6,8 @@ const router = Router();
 
 router.use(authController.protect);
 
+router.post("/", documentController.createDoc);
+
 router.get('/search/:name', documentController.searchDocs);
 
 router.get('/recent', documentController.getRecentDocs);
@@ -22,7 +24,7 @@ router.route("/:id/content")
 router.post(
     "/upload",
     documentController.uploadDoc,
-    documentController.createDoc
+    documentController.createDocByUpload
 );
 
 router.use(authController.restrictTo("admin", "manager"));

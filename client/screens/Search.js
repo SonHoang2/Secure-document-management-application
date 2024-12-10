@@ -28,7 +28,7 @@ const Search = ({ navigation }) => {
                     <View style={styles.cardBody}>
                         <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
                         <View style={styles.cardBodyText}>
-                            <Text style={styles.title} numberOfLines={1}>{item.}</Text>
+                            {/* <Text style={styles.title} numberOfLines={1}>{item.}</Text> */}
                         </View>
                     </View>
                 </View>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         backgroundColor: '#fff',
-        padding: 20
+        paddingTop: StatusBar.currentHeight + 10,
     },
     header: {
         flexDirection: 'row',
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
         color: '#616161',
     },
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: '#fafafa',
         padding: 16,
         borderRadius: 8,
         marginBottom: 12,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     cardBody: {
-        width: '80%',
+        width: '100%',
         paddingLeft: 10
     },
     cardBodyText: {

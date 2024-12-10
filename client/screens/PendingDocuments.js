@@ -18,8 +18,6 @@ const PendingDocuments = ({ navigation }) => {
     const getDocs = async () => {
         try {
             const res = await axios.get(DOCS_URL + "/status/pending");
-            console.log(res.data.data.docs);
-            
             setDocs(res.data.data.docs);
         } catch (error) {
             if (error.response) {

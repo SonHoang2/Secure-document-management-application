@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { DOCS_URL } from '../../shareVariables';
 
@@ -22,6 +22,7 @@ const PlainFile = ({ doc }) => {
     const getFile = async () => {
         try {
             const res = await axios.get(DOCS_URL + `/${doc.id}/content`);
+            if (typeof res.data === 'number') res.data = res.data.toString()
             setContent(res.data);
         } catch (error) {
             if (error.response) {
