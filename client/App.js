@@ -61,7 +61,7 @@ export default function App() {
                 <Drawer.Screen
                     name="Recent"
                     component={Recent}
-                    options={ ({ navigation }) => ({
+                    options={({ navigation }) => ({
                         headerRight: () => (
                             <TouchableOpacity onPress={() => navigation.navigate('Search')}>
                                 <Icon name="search" size={25} color="#000" style={{ marginRight: 15 }} />
@@ -133,6 +133,7 @@ export default function App() {
                                     </View>
                                 ),
                             }}
+                            initialParams={{ user }} 
                         />
                     )
                 }

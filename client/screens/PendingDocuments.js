@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { useState } from 'react';
 import axios from 'axios';
 import { DOCS_URL } from '../shareVariables';
@@ -7,13 +7,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DocPopup from './components/DocPopup';
 
 
-const PendingDocuments = ({ navigation }) => {
+const PendingDocuments = ({ navigation, route }) => {
     const [docs, setDocs] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [popup, setPopup] = useState({
         visible: false,
         doc: null,
     });
+
+    const { user } = route.params;
 
     const getDocs = async () => {
         try {
@@ -27,23 +29,16 @@ const PendingDocuments = ({ navigation }) => {
             }
         }
     }
-    
+
     const renderDocument = ({ item }) => (
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item, user })}>
             <View style={styles.cardLeft}>
                 <Ionicons name="document-text" style={styles.docIcon} />
                 <View style={styles.cardBody}>
                     <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                    {/* <View style={styles.cardBodyText}>
-                        <Text>You {item.auditLogs[0].action} at </Text>
-                        <Text>{
-                            new Intl.DateTimeFormat('en-US', {
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                            }).format(new Date(item.auditLogs[0].timestamp))
-                        }</Text>
-                    </View> */}
+                    <View style={styles.cardBodyText}>
+                        <Text>Author: {item.user.email}</Text>
+                    </View>
                 </View>
             </View>
             <TouchableOpacity onPress={() => setPopup({
@@ -78,7 +73,7 @@ const PendingDocuments = ({ navigation }) => {
             />
             {
                 popup.visible &&
-                <DocPopup setPopup={setPopup} navigation={navigation} doc={popup.doc} />
+                <DocPopup setPopup={setPopup} navigation={navigation} doc={popup.doc}/>
             }
         </View>
     );

@@ -9,3 +9,10 @@ export const roleName = {
     Admin: 'admin',
     Manager: 'manager',
 }
+
+export const documentStatus = {
+    Pending: 'pending',
+    Approved: 'approved',
+    Rejected: 'rejected',
+    Deleted: 'deleted',
+};

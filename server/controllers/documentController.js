@@ -13,7 +13,7 @@ import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
 import { query } from '../utils/filter.js';
 import sequelize from '../db.js';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 
 const readDocument = (doc, res) => {
     const buffer = getEncryptedFile(doc.content, config.secretKey, config.iv);
@@ -104,7 +104,7 @@ export const createDoc = catchAsync(async (req, res, next) => {
     const filePath = path.join("./upload/files", fileName);
 
     console.log(req.body.content);
-    
+
     saveEncryptedFile(req.body.content, filePath, config.secretKey, config.iv);
 
     const doc = await Document.create({
@@ -366,7 +366,8 @@ export const getMyDocs = catchAsync(async (req, res, next) => {
         limit: limit,
         offset: (page - 1) * limit,
         where: {
-            createdBy: req.user.id
+            createdBy: req.user.id,
+            status: { [Op.ne]: documentStatus.Deleted },
         },
         include: [
             {

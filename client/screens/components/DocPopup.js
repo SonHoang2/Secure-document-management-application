@@ -26,12 +26,15 @@ const DocPopup = ({ setPopup, navigation, doc }) => {
                         <Text style={styles.ModalHeaderText} numberOfLines={1}>{doc?.title}</Text>
                     </View>
                     <TouchableOpacity style={styles.ModalBodyButton}
-                        onPress={() => navigation.navigate('documentDetail',
-                            {
-                                doc: doc,
-                                screen: 'DocumentDetail'
-                            }
-                        )}
+                        onPress={() => {
+                            setPopup(prev => ({ ...prev, visible: false }));
+                            navigation.navigate('documentDetail',
+                                {
+                                    doc: doc,
+                                    screen: 'DocumentDetail'
+                                }
+                            )
+                        }}
                     >
                         <Feather name="info" style={styles.ModalBodyIcon} />
                         <Text style={styles.ModalBodyText}>Details</Text>

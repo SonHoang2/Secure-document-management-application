@@ -60,15 +60,13 @@ const Recent = ({ navigation }) => {
                 size: doc.size,
             });
 
-            const res = await axios.post(DOCS_URL + '/upload', formData, {
+            await axios.post(DOCS_URL + '/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
                 transformRequest: formData => formData,
                 timeout: 5000,
             });
-
-            console.log(res);
 
             alert('File uploaded successfully');
         } catch (error) {
@@ -78,6 +76,8 @@ const Recent = ({ navigation }) => {
     }
 
     const renderDocument = ({ item }) => {
+        console.log(item);
+        
         return (
             <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
                 <View style={styles.cardLeft}>

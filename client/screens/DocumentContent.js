@@ -4,9 +4,14 @@ import axios from 'axios';
 import PlainFile from './components/PlainFile';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Feather from 'react-native-vector-icons/Feather';
+import { checkRole } from '../utils/checkRole';
+import { documentStatus, roleName } from '../shareVariables';
+import { DOCS_URL } from '../shareVariables';
 
 const DocumentContent = ({ route, navigation }) => {
-    const { doc } = route.params;
+    const { doc, user } = route.params;
+
     const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
@@ -27,17 +32,28 @@ const DocumentContent = ({ route, navigation }) => {
 
     }, [navigation, doc.title]);
 
-    const handleApprove = () => {
-        setModalVisible(false);
-        console.log('Approved');
-        // Add your logic for "Approve" here
+    const handleApprove = async () => {
+        try {
+            setModalVisible(false);
+            await axios.patch(DOCS_URL + `/${doc.id}`, { status: documentStatus.Approved });
+            navigation.goBack()
+        } catch (error) {
+            console.log(error);
+            alert('Error approving document');
+        }
     };
 
-    const handleReject = () => {
-        setModalVisible(false);
-        console.log('Rejected');
-        // Add your logic for "Reject" here
+    const handleReject = async () => {
+        try {
+            setModalVisible(false);
+             await axios.patch(DOCS_URL + `/${doc.id}`, { status: documentStatus.Rejected });
+            navigation.goBack()
+        } catch (error) {
+            console.log(error);
+            alert('Error approving document');
+        }
     };
+
 
     return (
         <View style={styles.container}>
@@ -54,13 +70,33 @@ const DocumentContent = ({ route, navigation }) => {
                     }
                 >
                     <View style={styles.modalContent}>
-                        <TouchableOpacity style={styles.button} onPress={handleApprove}>
-                            <Entypo name="thumbs-up" style={styles.buttonIcon} />
-                            <Text style={styles.buttonText}>Approve</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={handleReject}>
-                            <Entypo name="thumbs-down" style={styles.buttonIcon} />
-                            <Text style={styles.buttonText}>Reject</Text>
+                        {
+                            checkRole(user, roleName.Manager) &&
+                            doc.status === documentStatus.Pending &&
+                            <View>
+                                <TouchableOpacity style={styles.button} onPress={handleApprove}>
+                                    <Entypo name="thumbs-up" style={styles.buttonIcon} />
+                                    <Text style={styles.buttonText}>Approve</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.button} onPress={handleReject}>
+                                    <Entypo name="thumbs-down" style={styles.buttonIcon} />
+                                    <Text style={styles.buttonText}>Reject</Text>
+                                </TouchableOpacity>
+                            </View>
+                        }
+                        <TouchableOpacity style={styles.button}
+                            onPress={() => {
+                                setModalVisible(false);
+                                navigation.navigate('documentDetail',
+                                    {
+                                        doc: doc,
+                                        screen: 'DocumentDetail'
+                                    }
+                                )
+                            }}
+                        >
+                            <Feather name="info" style={styles.buttonIcon} />
+                            <Text style={styles.buttonText}>Details</Text>
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>

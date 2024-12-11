@@ -12,7 +12,7 @@ const DocumentDetail = ({ route, navigation }) => {
         <View style={styles.container}>
             <Text style={styles.label}>Title: <Text style={styles.value}>{doc.title}</Text></Text>
             <Text style={styles.label}>Type: <Text style={styles.value}>{doc.type}</Text></Text>
-            <Text style={styles.label}>Size: <Text style={styles.value}>{doc.size}</Text></Text>
+            <Text style={styles.label}>Size: <Text style={styles.value}>{doc.size} kb</Text></Text>
             <Text style={styles.label}>Created At: <Text style={styles.value}>{doc.createdAt}</Text></Text>
             <Text style={styles.label}>Updated At: <Text style={styles.value}>{doc.updatedAt}</Text></Text>
             <Text style={styles.label}>Public: <Text style={styles.value}>{doc.public ? 'Yes' : 'No'}</Text></Text>
