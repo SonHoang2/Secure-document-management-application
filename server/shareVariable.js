@@ -7,7 +7,8 @@ export const __dirname = dirname(__filename);
 export const documentStatus = {
     Pending: 'pending',
     Approved: 'approved',
-    Rejected: 'rejected'
+    Rejected: 'rejected',
+    Deleted: 'deleted',
 };
 
 export const permissionAction = {

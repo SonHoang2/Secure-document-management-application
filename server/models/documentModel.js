@@ -36,7 +36,12 @@ const Document = sequelize.define('document', {
         type: DataTypes.BOOLEAN,
     },
     status: {
-        type: DataTypes.ENUM(documentStatus.Approved, documentStatus.Pending, documentStatus.Rejected),
+        type: DataTypes.ENUM(
+            documentStatus.Approved, 
+            documentStatus.Pending, 
+            documentStatus.Rejected, 
+            documentStatus.Deleted
+        ),
         allowNull: false
     },
     createdBy: {

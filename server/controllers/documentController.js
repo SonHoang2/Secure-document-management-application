@@ -182,22 +182,20 @@ export const deleteDoc = catchAsync(async (req, res, next) => {
 
     fs.unlinkSync(doc.content);
 
+    // Delete record from database
+    await doc.update({
+        status: documentStatus.Deleted
+    });
+
     await AuditLog.create({
         action: auditLogAction.Deleted,
         documentId: doc.id,
         userId: req.user.id
     });
 
-    // Delete record from database
-    await Document.destroy({
-        where: {
-            id: req.params.id
-        }
-    });
-
-    res.status(204).json({
+    res.status(200).json({
         status: 'success',
-        data: null
+        data: doc
     });
 });
 
@@ -205,6 +203,9 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
     const { page, limit, sort, fields } = query(req);
 
     const docs = await Document.findAndCountAll({
+        where: {
+            status: { [Op.ne]: documentStatus.Deleted },
+        },
         limit: limit,
         offset: (page - 1) * limit,
         order: sort,
@@ -335,7 +336,7 @@ export const getRecentDocs = catchAsync(async (req, res, next) => {
         FROM "auditLogs"
         LEFT JOIN documents ON "auditLogs"."documentId" = documents.id
         LEFT JOIN users ON documents."createdBy" = users.id
-        WHERE "auditLogs"."userId" = :userId AND "auditLogs".action = :action
+        WHERE "auditLogs"."userId" = :userId AND "auditLogs".action = :action AND documents.status != :status
         ORDER BY "auditLogs"."documentId", "auditLogs".timestamp DESC
         LIMIT :limit OFFSET :offset;
     `, {
@@ -344,6 +345,7 @@ export const getRecentDocs = catchAsync(async (req, res, next) => {
             action: auditLogAction.Read,
             limit: limit,
             offset: (page - 1) * limit,
+            status: documentStatus.Deleted
         },
         type: sequelize.QueryTypes.SELECT,
     });

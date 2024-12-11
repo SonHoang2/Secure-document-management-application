@@ -106,11 +106,15 @@ export const login = catchAsync(
     async (req, res, next) => {
         const { email, password } = req.body;
 
+        console.log(email, password);
+        
         if (!email || !password) {
             next(new AppError('Please provide email and password!', 400));
         }
 
         const user = await User.scope('withPassword').findOne({ where: { email: email, active: true } });
+        
+        console.log(user);
 
         if (!user || !user.validPassword(password)) {
             next(new AppError('Incorrect email or password', 401));
