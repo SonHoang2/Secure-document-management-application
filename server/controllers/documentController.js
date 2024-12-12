@@ -103,8 +103,6 @@ export const createDoc = catchAsync(async (req, res, next) => {
     const fileName = `${title}.${ext}`;
     const filePath = path.join("./upload/files", fileName);
 
-    console.log(req.body.content);
-
     saveEncryptedFile(req.body.content, filePath, config.secretKey, config.iv);
 
     const doc = await Document.create({
@@ -300,12 +298,18 @@ export const updateDoc = catchAsync(async (req, res, next) => {
 });
 
 export const updateDocContent = catchAsync(async (req, res, next) => {
+    const { content } = req.body;
     const doc = await Document.findByPk(req.params.id);
 
-    saveEncryptedFile(req.body.content, doc.content, config.secretKey, config.iv);
+    saveEncryptedFile(content, doc.content, config.secretKey, config.iv);
+
+    const sizeInBytes = Buffer.byteLength(content, 'utf8');
 
     await doc.update(
-        { updatedAt: Date.now() },
+        {
+            updatedAt: Date.now(),
+            size: sizeInBytes
+        },
     );
 
     await AuditLog.create({
@@ -411,7 +415,8 @@ export const searchDocs = catchAsync(async (req, res, next) => {
             }
         });
     }
-    else {
+
+    if (role === roleName.User) {
         docs = await Document.findAndCountAll({
             where: {
                 title: {

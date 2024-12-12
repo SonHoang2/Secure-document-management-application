@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
 import { USERS_URL } from '../shareVariables';
 
@@ -58,12 +58,22 @@ const Login = ({ navigation, route }) => {
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
-
             <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
                 <Text style={styles.redirectText}>
                     Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
                 </Text>
             </TouchableOpacity>
+            {/* <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
+                <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+                <View>
+                    <Text style={{ width: 50, textAlign: 'center' }}>OR</Text>
+                </View>
+                <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+            </View>
+            <TouchableOpacity style={styles.buttonGoogle} onPress={googleLogin}>
+                <Image source={require('../assets/image/google-icon.png')} style={styles.buttonGoogleIcon} />
+                <Text style={styles.buttonGoogleText}>Sign in with Google</Text>
+            </TouchableOpacity> */}
         </View>
     );
 };
@@ -77,7 +87,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 20,
         color: '#333',
@@ -102,7 +111,6 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: 'bold',
     },
     redirectText: {
         textAlign: 'center',
@@ -111,8 +119,25 @@ const styles = StyleSheet.create({
     },
     linkText: {
         color: '#007BFF',
-        fontWeight: 'bold',
     },
+    buttonGoogle: {
+        height: 50,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+        flexDirection: 'row',
+        borderWidth: 0.2,
+    },
+    buttonGoogleText: {
+        color: '#333',
+        fontSize: 16,
+        marginLeft: 10,
+    },
+    buttonGoogleIcon:{
+        width: 30,
+        height: 30,
+    }
 });
 
 export default Login;

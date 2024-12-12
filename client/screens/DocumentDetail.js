@@ -8,11 +8,22 @@ const DocumentDetail = ({ route, navigation }) => {
         navigation.setOptions({ title: "Detail" });
     }, [navigation, doc.title]);
 
+    let size = doc.size;
+    let unit = 'B';
+    if (size > 1024) {
+        size = (size / 1024).toFixed(2);
+        unit = 'KB';
+    }
+    if (size > 1024) {
+        size = (size / 1024).toFixed(2);
+        unit = 'MB';
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.label}>Title: <Text style={styles.value}>{doc.title}</Text></Text>
             <Text style={styles.label}>Type: <Text style={styles.value}>{doc.type}</Text></Text>
-            <Text style={styles.label}>Size: <Text style={styles.value}>{doc.size} kb</Text></Text>
+            <Text style={styles.label}>Size: <Text style={styles.value}>{size} {unit}</Text></Text>
             <Text style={styles.label}>Created At: <Text style={styles.value}>{doc.createdAt}</Text></Text>
             <Text style={styles.label}>Updated At: <Text style={styles.value}>{doc.updatedAt}</Text></Text>
             <Text style={styles.label}>Public: <Text style={styles.value}>{doc.public ? 'Yes' : 'No'}</Text></Text>
