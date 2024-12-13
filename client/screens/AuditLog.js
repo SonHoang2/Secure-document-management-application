@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
 import axios from 'axios';
 import { AUDITLOG } from '../shareVariables';
 
 const AuditLog = ({ navigation }) => {
+    const [totalLogs, setTotalLogs] = useState(0);
     const [auditLogs, setAuditLogs] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [queryParam, setQueryParam] = useState({
+        page: 1,
+        limit: 10,
+        sort: '-timestamp',
+    });
 
+    console.log(queryParam);
+    
+    
     const onRefresh = () => {
         setRefreshing(true);
         setTimeout(() => {
@@ -16,31 +25,55 @@ const AuditLog = ({ navigation }) => {
     };
 
     const getAuditLogs = async () => {
-        const res = await axios.get(AUDITLOG + '/?sort=-timestamp', { withCredentials: true });
-        console.log(res.data.data.auditLogs);
-        setAuditLogs(res.data.data.auditLogs);
+        const res = await axios.get(AUDITLOG, {
+            withCredentials: true,
+            params: queryParam,
+        });
+
+        setTotalLogs(res.data.total);
+
+        // not allow duplicate logs
+        setAuditLogs(prev => {
+            const newItems = res.data.data.auditLogs;
+
+            // Create a Set to track existing IDs
+            const existingIds = new Set(prev.map((item) => item.id));
+
+            // Filter newItems to only include unique items
+            const filteredItems = newItems.filter((item) => !existingIds.has(item.id));
+
+            // Return the updated array
+            return [...prev, ...filteredItems];
+        });
+
     };
 
     useEffect(() => {
         getAuditLogs();
-    }, [navigation]);
+    }, [navigation, queryParam.page]);
 
-    const renderLogItem = ({ item }) => (
-        <View style={styles.logItem}>
-            <Text style={styles.logText}>
-                <Text style={styles.bold}>Action:</Text> {item.action}
-            </Text>
-            <Text style={styles.logText}>
-                <Text style={styles.bold}>User:</Text> {item.user.firstName} {item.user.lastName}
-            </Text>
-            <Text style={styles.logText}>
-                <Text style={styles.bold}>Document ID:</Text> {item.documentId || "N/A"}
-            </Text>
-            <Text style={styles.logText}>
-                <Text style={styles.bold}>Timestamp:</Text> {new Date(item.timestamp).toLocaleString()}
-            </Text>
-        </View>
-    );
+    const renderLogItem = ({ item }) => {
+
+        return (
+            <View style={styles.logItem}>
+                <Text style={styles.logText}>
+                    <Text style={styles.bold}>Action:</Text> {item.action}
+                </Text>
+                <Text style={styles.logText}>
+                    <Text style={styles.bold}>User:</Text> {item.user.firstName} {item.user.lastName}
+                </Text>
+                <Text style={styles.logText}>
+                    <Text style={styles.bold}>Document Title:</Text> {item.document.title}
+                </Text>
+                <Text style={styles.logText}>
+                    <Text style={styles.bold}>Document Type:</Text> {item.document.type}
+                </Text>
+                <Text style={styles.logText}>
+                    <Text style={styles.bold}>Timestamp:</Text> {new Date(item.timestamp).toLocaleString()}
+                </Text>
+            </View>
+        )
+    };
 
     return (
         <View style={styles.container}>
@@ -50,8 +83,16 @@ const AuditLog = ({ navigation }) => {
                 renderItem={renderLogItem}
                 refreshing={refreshing}
                 onRefresh={onRefresh}
+                onEndReached={() => setQueryParam(prev => {
+                    const maxPages = Math.ceil(totalLogs / queryParam.limit);
+                    if (prev.page >= maxPages) {
+                        return prev;
+                    }
+
+                    return { ...prev, page: prev.page + 1 }
+                })}
+                onEndReachedThreshold={0.8}
             />
-            
         </View>
     );
 };

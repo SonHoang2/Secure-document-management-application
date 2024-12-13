@@ -23,10 +23,12 @@ const Users = ({ navigation }) => {
 
     const renderUser = ({ item: user }) => (
         <View style={styles.userCard}>
-            <Image
-                source={{ uri: IMAGES_URL + '/' + user.avatar }} // Replace with actual URL
-                style={styles.avatar}
-            />
+            <View style={styles.avatarContainer}>
+                <Image
+                    source={{ uri: IMAGES_URL + '/' + user.avatar }}
+                    style={styles.avatar}
+                />
+            </View>
             <View style={styles.userInfo}>
                 <Text style={styles.name}>
                     {user.firstName} {user.lastName}
@@ -87,6 +89,9 @@ const styles = StyleSheet.create({
         height: 60,
         borderRadius: 30,
         marginRight: 16,
+    },
+    avatarContainer: {
+        justifyContent: 'center',
     },
     userInfo: {
         flex: 1,

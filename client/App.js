@@ -20,6 +20,7 @@ import PendingDocuments from './screens/PendingDocuments';
 import Search from './screens/Search';
 import CreateDocument from './screens/CreateDocument';
 import { USERS_URL, roleName, IMAGES_URL } from './shareVariables';
+import { checkRole } from './utils/checkRole';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -88,7 +89,7 @@ export default function App() {
                     }}
                 />
                 {
-                    user.role === roleName.Admin && (
+                    checkRole(user, roleName.Admin) && (
                         <Drawer.Screen
                             name="AuditLog"
                             component={AuditLog}
@@ -104,7 +105,7 @@ export default function App() {
                     )
                 }
                 {
-                    user.role === roleName.Admin && (
+                    checkRole(user, roleName.Admin) && (
                         <Drawer.Screen
                             name="Users"
                             component={Users}
@@ -121,7 +122,7 @@ export default function App() {
                     )
                 }
                 {
-                    user.role === roleName.Manager && (
+                    checkRole(user, roleName.Manager)  && (
                         <Drawer.Screen
                             name="PendingDocuments"
                             component={PendingDocuments}

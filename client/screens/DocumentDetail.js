@@ -19,6 +19,8 @@ const DocumentDetail = ({ route, navigation }) => {
         unit = 'MB';
     }
 
+    console.log(doc);
+
     return (
         <View style={styles.container}>
             <Text style={styles.label}>Title: <Text style={styles.value}>{doc.title}</Text></Text>

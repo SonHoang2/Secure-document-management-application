@@ -412,20 +412,39 @@ export const searchDocs = catchAsync(async (req, res, next) => {
                 title: {
                     [Op.iLike]: `%${name}%`
                 }
-            }
+            },
+            include: [
+                {
+                    model: User,
+                    attributes: ['email'],
+                }
+            ]
         });
-    }
-
-    if (role === roleName.User) {
+    } else {
         docs = await Document.findAndCountAll({
             where: {
+                [Op.and]: {
+                    status: documentStatus.Approved,
+                },
+                [Op.or]: [
+                    { public: true },
+                    {
+                        public: false,
+                        createdBy: req.user.id
+                    }
+                ],
                 title: {
                     [Op.iLike]: `%${name}%`
-                },
-                status: documentStatus.Approved,
-                public: true
-            }
+                }
+            },
+            include: [
+                {
+                    model: User,
+                    attributes: ['email'],
+                }
+            ]
         });
+
     }
 
 

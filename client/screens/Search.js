@@ -19,17 +19,13 @@ const Search = ({ navigation }) => {
     }
 
     const renderDocument = ({ item }) => {
-        console.log(item);
-
         return (
             <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
                 <View style={styles.cardLeft}>
                     <Ionicons name="document-text" style={styles.docIcon} />
                     <View style={styles.cardBody}>
                         <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                        <View style={styles.cardBodyText}>
-                            {/* <Text style={styles.title} numberOfLines={1}>{item.}</Text> */}
-                        </View>
+                        <Text style={styles.cardBodyText}>Author: {item.user.email}</Text>
                     </View>
                 </View>
             </TouchableOpacity>
