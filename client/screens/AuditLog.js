@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { AUDITLOG } from '../shareVariables';
 
@@ -7,21 +7,21 @@ const AuditLog = ({ navigation }) => {
     const [totalLogs, setTotalLogs] = useState(0);
     const [auditLogs, setAuditLogs] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [queryParam, setQueryParam] = useState({
         page: 1,
         limit: 10,
         sort: '-timestamp',
     });
 
-    console.log(queryParam);
-    
-    
+
     const onRefresh = () => {
         setRefreshing(true);
+        setAuditLogs([]);
         setTimeout(() => {
-            getAuditLogs();
+            setQueryParam({ ...queryParam, page: 1 });
             setRefreshing(false);
-        }, 2000);
+        }, 500);
     };
 
     const getAuditLogs = async () => {
@@ -46,6 +46,7 @@ const AuditLog = ({ navigation }) => {
             return [...prev, ...filteredItems];
         });
 
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -75,6 +76,35 @@ const AuditLog = ({ navigation }) => {
         )
     };
 
+    const ListEndLoader = () => {
+        if (isLoading) {
+            return <ActivityIndicator size={'large'} style={styles.loading} />;
+        }
+    }
+
+    console.log("hello");
+    
+
+    const handleEndReached = () => {
+        if (!isLoading) {
+            console.log('isLoading',isLoading);
+            
+            setIsLoading(true);
+            setQueryParam(prev => {
+                console.log(prev.page);
+    
+                const maxPages = Math.ceil(totalLogs / queryParam.limit);
+                if (prev.page >= maxPages) {
+                    setIsLoading(false);
+                    return prev;
+                }
+    
+                return { ...prev, page: prev.page + 1 }
+            })
+        }
+    }
+
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -83,15 +113,9 @@ const AuditLog = ({ navigation }) => {
                 renderItem={renderLogItem}
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                onEndReached={() => setQueryParam(prev => {
-                    const maxPages = Math.ceil(totalLogs / queryParam.limit);
-                    if (prev.page >= maxPages) {
-                        return prev;
-                    }
-
-                    return { ...prev, page: prev.page + 1 }
-                })}
+                onEndReached={handleEndReached}
                 onEndReachedThreshold={0.8}
+                ListFooterComponent={ListEndLoader}
             />
         </View>
     );
@@ -125,6 +149,9 @@ const styles = StyleSheet.create({
     },
     bold: {
         fontWeight: "bold",
+    },
+    loading: {
+        marginVertical: 40,
     },
 });
 
