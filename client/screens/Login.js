@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
 import { USERS_URL } from '../shareVariables';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Login = ({ navigation, route }) => {
+    const { setUser } = route.params;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { setUser } = route.params;
-
+    const [passwordVisible, setPasswordVisible] = useState(false);
 
     const handleSubmit = async () => {
         try {
@@ -48,13 +49,21 @@ const Login = ({ navigation, route }) => {
                 keyboardType="email-address"
                 autoCapitalize="none"
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
+            <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!passwordVisible}
+                />
+                <TouchableOpacity style={styles.passwordVisibleButton} onPress={() => setPasswordVisible(prev => !prev)}>
+                    {passwordVisible
+                        ? <Ionicons name="eye" style={styles.passwordVisibleIcon} />
+                        : <Ionicons name="eye-off" style={styles.passwordVisibleIcon} />
+                    }
+                </TouchableOpacity>
+            </View>
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
@@ -97,7 +106,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 15,
-        marginBottom: 15,
         backgroundColor: '#fff',
     },
     button: {
@@ -134,9 +142,24 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 10,
     },
-    buttonGoogleIcon:{
+    buttonGoogleIcon: {
         width: 30,
         height: 30,
+    },
+    passwordContainer: {
+        position: 'relative',
+        marginVertical: 15
+    },
+    passwordVisibleButton: {
+        position: 'absolute',
+        right: 0,
+        height: '100%',
+        justifyContent: 'center'
+    },
+    passwordVisibleIcon: {
+        color: '#333',
+        fontSize: 20,
+        padding: 10
     }
 });
 

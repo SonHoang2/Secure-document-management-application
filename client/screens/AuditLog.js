@@ -54,7 +54,6 @@ const AuditLog = ({ navigation }) => {
     }, [navigation, queryParam.page]);
 
     const renderLogItem = ({ item }) => {
-
         return (
             <View style={styles.logItem}>
                 <Text style={styles.logText}>
@@ -74,16 +73,13 @@ const AuditLog = ({ navigation }) => {
                 </Text>
             </View>
         )
-    };
+    }
 
     const ListEndLoader = () => {
         if (isLoading) {
             return <ActivityIndicator size={'large'} style={styles.loading} />;
         }
     }
-
-    console.log("hello");
-    
 
     const handleEndReached = () => {
         if (!isLoading) {
@@ -114,7 +110,7 @@ const AuditLog = ({ navigation }) => {
                 refreshing={refreshing}
                 onRefresh={onRefresh}
                 onEndReached={handleEndReached}
-                onEndReachedThreshold={0.8}
+                onEndReachedThreshold={0.9}
                 ListFooterComponent={ListEndLoader}
             />
         </View>

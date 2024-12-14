@@ -75,9 +75,7 @@ const Recent = ({ navigation }) => {
         }
     }
 
-    const renderDocument = ({ item }) => {
-        console.log(item);
-        
+    const renderDocument = ({ item }) => {        
         return (
             <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('documentContent', { doc: item })}>
                 <View style={styles.cardLeft}>

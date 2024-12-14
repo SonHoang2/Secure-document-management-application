@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import { USERS_URL } from '../shareVariables';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 const SignUp = ({ navigation, route }) => {
@@ -12,6 +13,8 @@ const SignUp = ({ navigation, route }) => {
         password: '',
         confirmPassword: '',
     });
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [passwordConfirmVisible, setPasswordConfirmVisible] = useState(false);
 
     const { setUser } = route.params;
 
@@ -55,49 +58,69 @@ const SignUp = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Create Account</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="First Name"
-                placeholderTextColor="#888"
-                value={formData.firstName}
-                onChangeText={(value) => handleInputChange('firstName', value)}
-                required
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Last Name"
-                placeholderTextColor="#888"
-                value={formData.lastName}
-                onChangeText={(value) => handleInputChange('lastName', value)}
-                required
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#888"
-                keyboardType="email-address"
-                value={formData.email}
-                onChangeText={(value) => handleInputChange('email', value)}
-            />
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="First Name"
+                    placeholderTextColor="#888"
+                    value={formData.firstName}
+                    onChangeText={(value) => handleInputChange('firstName', value)}
+                    required
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Last Name"
+                    placeholderTextColor="#888"
+                    value={formData.lastName}
+                    onChangeText={(value) => handleInputChange('lastName', value)}
+                    required
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor="#888"
+                    keyboardType="email-address"
+                    value={formData.email}
+                    onChangeText={(value) => handleInputChange('email', value)}
+                />
+            </View>
+            <View style={[styles.passwordContainer, styles.inputContainer]}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor="#888"
+                    value={formData.password}
+                    onChangeText={(value) => handleInputChange('password', value)}
+                    secureTextEntry={!passwordVisible}
+                />
+                <TouchableOpacity style={styles.passwordVisibleButton} onPress={() => setPasswordVisible(prev => !prev)}>
+                    {passwordVisible
+                        ? <Ionicons name="eye" style={styles.passwordVisibleIcon} />
+                        : <Ionicons name="eye-off" style={styles.passwordVisibleIcon} />
+                    }
+                </TouchableOpacity>
+            </View>
+            <View style={[styles.passwordContainer, styles.inputContainer]}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Confirm Password"
+                    placeholderTextColor="#888"
+                    value={formData.confirmPassword}
+                    onChangeText={(value) => handleInputChange('confirmPassword', value)}
+                    secureTextEntry={!passwordConfirmVisible}
 
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#888"
-                secureTextEntry={true}
-                value={formData.password}
-                onChangeText={(value) => handleInputChange('password', value)}
-            />
-
-            <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                placeholderTextColor="#888"
-                secureTextEntry={true}
-                value={formData.confirmPassword}
-                onChangeText={(value) => handleInputChange('confirmPassword', value)}
-            />
-
+                />
+                <TouchableOpacity style={styles.passwordVisibleButton} onPress={() => setPasswordConfirmVisible(prev => !prev)}>
+                    {passwordConfirmVisible
+                        ? <Ionicons name="eye" style={styles.passwordVisibleIcon} />
+                        : <Ionicons name="eye-off" style={styles.passwordVisibleIcon} />
+                    }
+                </TouchableOpacity>
+            </View>
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
@@ -125,6 +148,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
+    inputContainer: {
+        marginBottom: 15,
+    },
     input: {
         height: 50,
         borderColor: '#DDD',
@@ -132,7 +158,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 10,
         fontSize: 16,
-        marginBottom: 15,
         color: '#333',
     },
     button: {
@@ -156,6 +181,20 @@ const styles = StyleSheet.create({
         color: '#007BFF',
         fontWeight: 'bold',
     },
+    passwordContainer: {
+        position: 'relative',
+    },
+    passwordVisibleButton: {
+        position: 'absolute',
+        right: 0,
+        height: '100%',
+        justifyContent: 'center'
+    },
+    passwordVisibleIcon: {
+        color: '#333',
+        fontSize: 20,
+        padding: 10
+    }
 });
 
 export default SignUp;
