@@ -21,7 +21,6 @@ export function saveEncryptedFile(buffer, filePath, key, iv) {
 }
 
 export function getEncryptedFile(filePath, key, iv) {
-
     const encrypted = fs.readFileSync(filePath);
     const buffer = decrypt(config.encryptionMethod, encrypted, key, iv);
     return buffer;

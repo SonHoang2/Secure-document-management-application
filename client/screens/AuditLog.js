@@ -82,22 +82,21 @@ const AuditLog = ({ navigation }) => {
     }
 
     const handleEndReached = () => {
-        if (!isLoading) {
-            console.log('isLoading',isLoading);
-            
-            setIsLoading(true);
-            setQueryParam(prev => {
-                console.log(prev.page);
-    
-                const maxPages = Math.ceil(totalLogs / queryParam.limit);
-                if (prev.page >= maxPages) {
-                    setIsLoading(false);
-                    return prev;
-                }
-    
-                return { ...prev, page: prev.page + 1 }
-            })
-        }
+        if (isLoading) return;
+
+        setIsLoading(true);
+        setQueryParam(prev => {
+            console.log(prev.page);
+
+            const maxPages = Math.ceil(totalLogs / queryParam.limit);
+            if (prev.page >= maxPages) {
+                setIsLoading(false);
+                return prev;
+            }
+
+            return { ...prev, page: prev.page + 1 }
+        })
+
     }
 
 
