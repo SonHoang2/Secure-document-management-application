@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
-import { USERS_URL } from '../shareVariables';
+import { USERS_URL, CLIENT_URL } from '../shareVariables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { WebView } from 'react-native-webview';
 
 const Login = ({ navigation, route }) => {
     const { setUser } = route.params;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [authUrl, setAuthUrl] = useState('');
 
     const handleSubmit = async () => {
         try {
@@ -37,6 +39,50 @@ const Login = ({ navigation, route }) => {
             }
         }
     };
+
+    // const handleAuthRedirect = async () => {
+    //     try {
+    //         console.log(location.pathname);
+    //         const { code } = queryString.parse(location.search);
+
+    //         if (location.pathname === "/auth/google") {
+    //             const URL = USERS_URL + `/login/google`;
+    //             const response = await fetch(URL, {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify({ code, redirectUri: CLIENT_URL + "/auth/google" }),
+    //             });
+    //             const data = await response.json();
+    //             console.log(data);
+    //             localStorage.setItem("user", JSON.stringify(data.data.user));
+    //             localStorage.setItem("token", JSON.stringify(data.token));
+    //             navigate("/");
+    //         }
+
+
+    //     } catch (error) {
+    //         console.error('Error fetching auth data:', error);
+    //     }
+    // };
+
+    const googleLogin = () => {
+        const queryParams = new URLSearchParams({
+            client_id: CLIENT_URL,
+            scope: 'openid email profile',
+            redirect_uri: CLIENT_URL + "/auth/google",
+            response_type: 'code',
+        }).toString();
+
+        setAuthUrl(`https://accounts.google.com/o/oauth2/v2/auth?${queryParams}`);
+    }
+
+    // useEffect(() => {
+    //     // login with social account
+    //     // handleAuthRedirect()
+
+    // }, [location.pathname]);
 
     return (
         <View style={styles.container}>
@@ -72,7 +118,7 @@ const Login = ({ navigation, route }) => {
                     Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
                 </Text>
             </TouchableOpacity>
-            {/* <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
                 <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
                 <View>
                     <Text style={{ width: 50, textAlign: 'center' }}>OR</Text>
@@ -82,7 +128,10 @@ const Login = ({ navigation, route }) => {
             <TouchableOpacity style={styles.buttonGoogle} onPress={googleLogin}>
                 <Image source={require('../assets/image/google-icon.png')} style={styles.buttonGoogleIcon} />
                 <Text style={styles.buttonGoogleText}>Sign in with Google</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
+            <WebView
+                source={{ uri: authUrl }}
+            />
         </View>
     );
 };
