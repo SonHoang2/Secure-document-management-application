@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
-import { USERS_URL, CLIENT_URL } from '../shareVariables';
+import { USERS_URL, GOOGLE_CLIENT_ID } from '../shareVariables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { WebView } from 'react-native-webview';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const Login = ({ navigation, route }) => {
     const { setUser } = route.params;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [authUrl, setAuthUrl] = useState('');
+    const [isGoogleAuthInProgress, setIsGoogleAuthInProgress] = useState(false);
 
     const handleSubmit = async () => {
         try {
@@ -40,49 +44,37 @@ const Login = ({ navigation, route }) => {
         }
     };
 
-    // const handleAuthRedirect = async () => {
-    //     try {
-    //         console.log(location.pathname);
-    //         const { code } = queryString.parse(location.search);
-
-    //         if (location.pathname === "/auth/google") {
-    //             const URL = USERS_URL + `/login/google`;
-    //             const response = await fetch(URL, {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                 },
-    //                 body: JSON.stringify({ code, redirectUri: CLIENT_URL + "/auth/google" }),
-    //             });
-    //             const data = await response.json();
-    //             console.log(data);
-    //             localStorage.setItem("user", JSON.stringify(data.data.user));
-    //             localStorage.setItem("token", JSON.stringify(data.token));
-    //             navigate("/");
-    //         }
+    const redirectUri = makeRedirectUri({
+        useProxy: true,
+    });
 
 
-    //     } catch (error) {
-    //         console.error('Error fetching auth data:', error);
-    //     }
-    // };
+    const [request, response, promptAsync] = Google.useAuthRequest({
+        androidClientId: GOOGLE_CLIENT_ID,
+        redirectUri: redirectUri
+    });
 
-    const googleLogin = () => {
-        const queryParams = new URLSearchParams({
-            client_id: CLIENT_URL,
-            scope: 'openid email profile',
-            redirect_uri: CLIENT_URL + "/auth/google",
-            response_type: 'code',
-        }).toString();
+    console.log(request);
 
-        setAuthUrl(`https://accounts.google.com/o/oauth2/v2/auth?${queryParams}`);
-    }
+    useEffect(() => {
+        if (response?.type === 'success') {
+            // Handle successful authentication
+            const { authentication } = response.params;
+            console.log(authentication);
+            // Handle the Google sign-in logic here (e.g., setUser)
+            setIsGoogleAuthInProgress(false); // Reset the flag after successful login
+        } else if (response?.type === 'error') {
+            // Handle error
+            console.error('Google Auth Error:', response.error);
+            setIsGoogleAuthInProgress(false); // Reset the flag after error
+        }
+    }, [response]);
 
-    // useEffect(() => {
-    //     // login with social account
-    //     // handleAuthRedirect()
-
-    // }, [location.pathname]);
+    const handleGoogleSignIn = async () => {
+        if (isGoogleAuthInProgress) return; // Prevent multiple calls
+        setIsGoogleAuthInProgress(true);
+        await promptAsync(); // Trigger Google sign-in
+    };
 
     return (
         <View style={styles.container}>
@@ -118,23 +110,25 @@ const Login = ({ navigation, route }) => {
                     Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
                 </Text>
             </TouchableOpacity>
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
+            {/* <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
                 <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
                 <View>
                     <Text style={{ width: 50, textAlign: 'center' }}>OR</Text>
                 </View>
                 <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
             </View>
-            <TouchableOpacity style={styles.buttonGoogle} onPress={googleLogin}>
+            <TouchableOpacity
+                style={styles.buttonGoogle}
+                onPress={handleGoogleSignIn}
+                disabled={isGoogleAuthInProgress}
+            >
                 <Image source={require('../assets/image/google-icon.png')} style={styles.buttonGoogleIcon} />
                 <Text style={styles.buttonGoogleText}>Sign in with Google</Text>
-            </TouchableOpacity>
-            <WebView
-                source={{ uri: authUrl }}
-            />
+            </TouchableOpacity> */}
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

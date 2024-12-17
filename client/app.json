@@ -4,6 +4,8 @@
     "slug": "client",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "client",
+    "platforms": ["android"],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -24,6 +26,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e2f9328a-3202-46c4-ae42-6cee1e2e908c"
+      }
     }
   }
 }
