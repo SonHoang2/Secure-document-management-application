@@ -1,6 +1,7 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { roleName } from '../shareVariable.js';
 
 const User = sequelize.define('user', {
@@ -89,6 +90,19 @@ User.beforeCreate(async (user, options) => {
 
 User.prototype.validPassword = function (password) {
     return bcrypt.compareSync(password, this.password);
+};
+
+User.prototype.createPasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    this.passwordResetToken = crypto
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+    return resetToken;
 };
 
 

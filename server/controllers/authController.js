@@ -3,6 +3,8 @@ import User from "../models/userModel.js";
 import AppError from "../utils/AppError.js";
 import jwt from 'jsonwebtoken';
 import config from "../config/config.js";
+import { sendEmail } from "../utils/email.js";
+import { client } from "../redisClient.js";
 
 export const protect = catchAsync(async (req, res, next) => {
     let token;
@@ -107,13 +109,13 @@ export const login = catchAsync(
         const { email, password } = req.body;
 
         console.log(email, password);
-        
+
         if (!email || !password) {
             next(new AppError('Please provide email and password!', 400));
         }
 
         const user = await User.scope('withPassword').findOne({ where: { email: email, active: true } });
-        
+
         console.log(user);
 
         if (!user || !user.validPassword(password)) {
@@ -137,12 +139,65 @@ export const logout = (req, res) => {
 
 export const forgotPassword = catchAsync(
     async (req, res, next) => {
-       
+        const { email } = req.body;
+        const user = await User.findOne({ where: { email: email } });
+
+        if (!user) {
+            return next(new AppError('There is no user with email address.', 404));
+        }
+
+        const resetToken = user.createPasswordResetToken();
+
+        await client.set(resetToken, email, 'EX', 10 * 60);
+
+        await sendEmail({
+            email: user.email,
+            subject: 'Your password reset token (valid for 10 min)',
+            html: `
+            <div>
+                <p>Your token is: ${resetToken}</p>
+                <p>If you didn't forget your password, please ignore this email!</p>
+            </div>
+        `,
+        });
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Token sent to email!'
+        })
     }
 )
 
 export const resetPassword = catchAsync(
     async (req, res, next) => {
-        
+        const { resetToken } = req.params;
+        const { password, passwordConfirm } = req.body;
+
+        const email = await client.get(resetToken);
+
+        if (!email) {
+            return next(new AppError('Token is invalid or has expired', 400));
+        }
+
+        if (!password || !passwordConfirm) {
+            return next(new AppError('Please provide password and passwordConfirm', 400));
+        }
+
+        if (password !== passwordConfirm) {
+            return next(new AppError('Passwords do not match', 400));
+        }
+
+        const user = await User.findOne({ where: { email: email } });
+
+        await user.update({
+            password: password,
+        });
+
+        await client.del(resetToken);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Password reset successfully!'
+        })
     }
 )
