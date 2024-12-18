@@ -130,7 +130,14 @@ export const createDoc = catchAsync(async (req, res, next) => {
 });
 
 export const getDocContent = catchAsync(async (req, res, next) => {
-    const doc = await Document.findByPk(req.params.id);
+    const doc = await Document.findOne({
+        where: {
+            id: req.params.id,
+            status: { [Op.ne]: documentStatus.Deleted }
+        }
+    });
+
+    console.log(doc);
 
     if (!doc) {
         return next(new AppError('Document not found', 404));
@@ -201,9 +208,6 @@ export const getAllDocs = catchAsync(async (req, res, next) => {
     const { page, limit, sort, fields } = query(req);
 
     const docs = await Document.findAndCountAll({
-        where: {
-            status: { [Op.ne]: documentStatus.Deleted },
-        },
         limit: limit,
         offset: (page - 1) * limit,
         order: sort,
