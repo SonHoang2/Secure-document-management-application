@@ -6,6 +6,7 @@ import Permission from "./models/permissionModel.js";
 import User from "./models/userModel.js";
 import Document from "./models/documentModel.js";
 import AuditLog from "./models/auditLogModel.js";
+import { connectRedis } from './redisClient.js';
 
 try {
     await sequelize.authenticate();
@@ -29,6 +30,8 @@ Object.keys(db).forEach((modelName) => {
 });
 
 // sequelize.sync({ force: true })
+
+await connectRedis();
 
 const port = config.port || 5000;
 app.listen(port, () => {

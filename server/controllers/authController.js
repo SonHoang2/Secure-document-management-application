@@ -134,3 +134,15 @@ export const logout = (req, res) => {
         { status: 'success' }
     );
 }
+
+export const forgotPassword = catchAsync(
+    async (req, res, next) => {
+       
+    }
+)
+
+export const resetPassword = catchAsync(
+    async (req, res, next) => {
+        
+    }
+)
