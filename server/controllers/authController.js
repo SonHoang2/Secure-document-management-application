@@ -90,12 +90,22 @@ const createSendToken = (user, statusCode, res) => {
 }
 
 export const signup = catchAsync(
-    async (req, res) => {
+    async (req, res, next) => {
+        const { firstName, lastName, email, password, passwordConfirm } = req.body;
+
+        if (!firstName || !lastName || !email || !password || !passwordConfirm) {
+            return next(new AppError('Please provide all required fields!', 400));
+        }
+
+        if (password !== passwordConfirm) {
+            return next(new AppError('Passwords do not match!', 400));
+        }
+
         const filter = {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: req.body.email,
-            password: req.body.password
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password,
         }
 
         const newUser = await User.create(filter);
@@ -107,8 +117,6 @@ export const signup = catchAsync(
 export const login = catchAsync(
     async (req, res, next) => {
         const { email, password } = req.body;
-
-        console.log(email, password);
 
         if (!email || !password) {
             next(new AppError('Please provide email and password!', 400));
