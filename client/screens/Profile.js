@@ -71,7 +71,7 @@ const Profile = ({ navigation, route }) => {
                 <TextInput
                     style={styles.textInput}
                     value={user.passwordChangedAt
-                        ? new Date(user.passwordChangedAt).toLocaleDateString()
+                        ? new Date(user.passwordChangedAt).toLocaleString()
                         : "Never"}
                     editable={false}
                 />

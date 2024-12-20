@@ -23,19 +23,48 @@ const DocumentDetail = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Title: <Text style={styles.value}>{doc.title}</Text></Text>
-            <Text style={styles.label}>Type: <Text style={styles.value}>{doc.type}</Text></Text>
-            <Text style={styles.label}>Size: <Text style={styles.value}>{size} {unit}</Text></Text>
-            <Text style={styles.label}>Created At: <Text style={styles.value}>{doc.createdAt}</Text></Text>
-            <Text style={styles.label}>Updated At: <Text style={styles.value}>{doc.updatedAt}</Text></Text>
-            <Text style={styles.label}>Public: <Text style={styles.value}>{doc.public ? 'Yes' : 'No'}</Text></Text>
-            <Text style={styles.label}>Status: <Text style={styles.value}>{doc.status}</Text></Text>
-            <Text style={styles.label}>Created By: <Text style={styles.value}>{doc.user?.email || doc.email}</Text></Text>
+            <View style={styles.field}>
+                <Text style={styles.label}>Title:</Text>
+                <Text style={styles.value}>{doc.title}</Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Type:</Text>
+                <Text style={styles.value}>{doc.type}</Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Size:</Text>
+                <Text style={styles.value}>{size} {unit}</Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Created At:</Text>
+                <Text style={styles.value}>
+                    {doc.createdAt ? new Date(doc.createdAt).toLocaleString() : 'Never'}
+                </Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Updated At:</Text>
+                <Text style={styles.value}>
+                    {doc.updateAt ? new Date(doc.updateAt).toLocaleString() : 'Never'}
+                </Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Public:</Text>
+                <Text style={styles.value}>{doc.public ? 'Yes' : 'No'}</Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Status:</Text>
+                <Text style={styles.value}>{doc.status}</Text>
+            </View>
+            <View style={styles.field}>
+                <Text style={styles.label}>Created By:</Text>
+                <Text style={styles.value}>{doc.user?.email || doc.email}</Text>
+            </View>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Root', { screen: 'Recent' })}>
                 <Text style={styles.buttonText}>Return Home</Text>
             </TouchableOpacity>
         </View>
     );
+
 };
 
 const styles = StyleSheet.create({
@@ -44,30 +73,38 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#f5f5f5',
     },
-    heading: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
+    field: {
+        marginBottom: 15, // Space between fields
     },
     label: {
         fontSize: 16,
-        marginBottom: 10,
         fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 5, // Space between label and value
     },
     value: {
-        fontWeight: 'normal',
+        fontSize: 16,
+        fontWeight: '400',
+        color: '#333',
+        backgroundColor: "#f9f9f9",
+        padding: 10,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "#ddd",
     },
     button: {
         marginTop: 20,
         backgroundColor: '#0d6efd',
-        padding: 10,
+        padding: 15,
         borderRadius: 5,
         alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
+
 
 export default DocumentDetail;
