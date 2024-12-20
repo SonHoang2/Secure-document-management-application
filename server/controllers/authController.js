@@ -122,12 +122,14 @@ export const login = catchAsync(
             next(new AppError('Please provide email and password!', 400));
         }
 
-        const user = await User.scope('withPassword').findOne({ where: { email: email, active: true } });
-
-        console.log(user);
+        const user = await User.scope('withPassword').findOne({ where: { email: email} });
 
         if (!user || !user.validPassword(password)) {
             next(new AppError('Incorrect email or password', 401));
+        }
+
+        if (!user.active) {
+            next(new AppError('Your account has been deactivated and can no longer be used.', 401));
         }
 
         createSendToken(user, 200, res);
@@ -183,6 +185,8 @@ export const resetPassword = catchAsync(
 
         const email = await client.get(resetToken);
 
+        console.log(email);
+
         if (!email) {
             return next(new AppError('Token is invalid or has expired', 400));
         }
@@ -195,10 +199,11 @@ export const resetPassword = catchAsync(
             return next(new AppError('Passwords do not match', 400));
         }
 
-        const user = await User.findOne({ where: { email: email } });
+        const user = await User.scope('withPassword').findOne({ where: { email: email } });
 
         await user.update({
             password: password,
+            passwordChangedAt: Date.now() - 1000
         });
 
         await client.del(resetToken);

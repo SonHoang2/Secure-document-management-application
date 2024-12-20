@@ -3,6 +3,7 @@ import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { roleName } from '../shareVariable.js';
+import AppError from '../utils/AppError.js';
 
 const User = sequelize.define('user', {
     id: {
@@ -33,16 +34,6 @@ const User = sequelize.define('user', {
     password: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-            isComplex(value) {
-                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,20}$/;
-                if (!regex.test(value)) {
-                    throw new Error(
-                        "Password must be 12-20 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-                    );
-                }
-            }
-        }
     },
     avatar: {
         type: DataTypes.STRING,
@@ -84,8 +75,25 @@ User.associate = (models) => {
     User.hasMany(models.AuditLog, { foreignKey: 'userId' });
 }
 
+const passwordValidation = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,20}$/;
+    if (!regex.test(password)) {
+        throw new AppError(
+            "Password must be 12-20 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+        );
+    }
+}
+
 User.beforeCreate(async (user, options) => {
+    passwordValidation(user.password);
     user.password = await bcrypt.hash(user.password, 12);
+});
+
+User.beforeUpdate(async (user, options) => {
+    if (user.changed('password')) {
+        passwordValidation(user.password);
+        user.password = await bcrypt.hash(user.password, 12);
+    }
 });
 
 User.prototype.validPassword = function (password) {
