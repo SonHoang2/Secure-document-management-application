@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
-import { USERS_URL, GOOGLE_CLIENT_ID } from '../shareVariables';
+import { USERS_URL } from '../shareVariables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
-
-WebBrowser.maybeCompleteAuthSession();
 
 const Login = ({ navigation, route }) => {
     const { setUser } = route.params;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [isGoogleAuthInProgress, setIsGoogleAuthInProgress] = useState(false);
 
     const handleSubmit = async () => {
         try {
@@ -42,38 +36,6 @@ const Login = ({ navigation, route }) => {
                 Alert.alert('Error', error.message);
             }
         }
-    };
-
-    const redirectUri = makeRedirectUri({
-        useProxy: true,
-    });
-
-
-    const [request, response, promptAsync] = Google.useAuthRequest({
-        androidClientId: GOOGLE_CLIENT_ID,
-        redirectUri: redirectUri
-    });
-
-    console.log(request);
-
-    useEffect(() => {
-        if (response?.type === 'success') {
-            // Handle successful authentication
-            const { authentication } = response.params;
-            console.log(authentication);
-            // Handle the Google sign-in logic here (e.g., setUser)
-            setIsGoogleAuthInProgress(false); // Reset the flag after successful login
-        } else if (response?.type === 'error') {
-            // Handle error
-            console.error('Google Auth Error:', response.error);
-            setIsGoogleAuthInProgress(false); // Reset the flag after error
-        }
-    }, [response]);
-
-    const handleGoogleSignIn = async () => {
-        if (isGoogleAuthInProgress) return; // Prevent multiple calls
-        setIsGoogleAuthInProgress(true);
-        await promptAsync(); // Trigger Google sign-in
     };
 
     return (
@@ -110,21 +72,6 @@ const Login = ({ navigation, route }) => {
                     Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
                 </Text>
             </TouchableOpacity>
-            {/* <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
-                <View>
-                    <Text style={{ width: 50, textAlign: 'center' }}>OR</Text>
-                </View>
-                <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
-            </View>
-            <TouchableOpacity
-                style={styles.buttonGoogle}
-                onPress={handleGoogleSignIn}
-                disabled={isGoogleAuthInProgress}
-            >
-                <Image source={require('../assets/image/google-icon.png')} style={styles.buttonGoogleIcon} />
-                <Text style={styles.buttonGoogleText}>Sign in with Google</Text>
-            </TouchableOpacity> */}
         </View>
     );
 };
