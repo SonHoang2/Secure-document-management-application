@@ -19,11 +19,11 @@ const limiter = rateLimit({
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 })
 
+app.use(limiter)
+
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
-
-app.use(limiter)
 
 // Body parser, reading data from body into req.body
 app.use(express.json());
