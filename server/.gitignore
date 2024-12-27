@@ -133,4 +133,5 @@ dist
 
 /upload/files/*
 /upload/images/*
-!/images/user-avatar-default.jpg
+!/upload/images/user-avatar-default.jpg
+!/upload/files/.gitkeep

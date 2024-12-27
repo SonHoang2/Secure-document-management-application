@@ -31,7 +31,7 @@ Object.keys(db).forEach((modelName) => {
 
 // sequelize.sync({ force: true })
 
-// await connectRedis();
+await connectRedis();
 
 const port = config.port || 5000;
 app.listen(port, () => {
