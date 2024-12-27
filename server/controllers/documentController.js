@@ -13,7 +13,7 @@ import { saveEncryptedFile, getEncryptedFile } from '../utils/encryption.js';
 import config from '../config/config.js';
 import { query } from '../utils/filter.js';
 import sequelize from '../db.js';
-import { Op, where } from 'sequelize';
+import { Op } from 'sequelize';
 
 const readDocument = (doc, res) => {
     const buffer = getEncryptedFile(doc.content, config.secretKey, config.iv);
@@ -41,6 +41,7 @@ const multerFilter = (req, file, cb) => {
 const upload = multer({
     storage: multerStorage,
     fileFilter: multerFilter,
+    limits: { fileSize: 1024 * 1024 * 10 } // 10MB
 })
 
 export const uploadDoc = upload.single('file');

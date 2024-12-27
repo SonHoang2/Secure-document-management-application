@@ -41,6 +41,8 @@ const handleValidationErrorDB = err => {
     return new AppError(message, 400);
 }
 
+const handleFileSizeError = err => new AppError(`File size should be less than 10 MB`, 400);
+
 export default (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -55,6 +57,7 @@ export default (err, req, res, next) => {
     if (error.name === "SequelizeValidationError") error = handleValidationErrorDB(error);
     if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
+    if (error.code === 'LIMIT_FILE_SIZE') error = handleFileSizeError(error);
     if (config.env === 'development') {
         console.log(err);
     }
