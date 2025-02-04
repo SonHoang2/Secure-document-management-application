@@ -6,7 +6,7 @@ The Secure Document Management System is a powerful and secure app designed to e
 ## Technologies
 - Frontend: React Native
 - Backend: NodeJS, Express
-- Database: Redis, Postgres, Sequelize
+- Database: Redis, PortgresSQL, Sequelize
 
 ## Features
 - **User Authentication**: Provides a secure system for login, registration, logout, password resets, and forgotten password recovery.
